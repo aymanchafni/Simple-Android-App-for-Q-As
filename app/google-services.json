@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "851397588675",
+    "firebase_url": "https://hblik17.firebaseio.com",
+    "project_id": "hblik17",
+    "storage_bucket": "hblik17.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851397588675:android:6873aabc09c21746",
+        "android_client_info": {
+          "package_name": "com.ayman.hblik"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "851397588675-gdeltfb2cv8ha0h6lrj54p029vt4h2aa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoGzS7cqmOMnbixgBgeJtP6EqcUTuaB_4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "851397588675-gdeltfb2cv8ha0h6lrj54p029vt4h2aa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

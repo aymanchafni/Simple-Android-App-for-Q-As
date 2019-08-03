@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/MyQuestions"
+        android:title="My Questions"
+        />
+    <item
+        android:id="@+id/nav_home"
+        android:title="@string/menu_home" />
+    <item
+        android:id="@+id/nav_gallery"
+        android:title="@string/menu_gallery" />
+    <item
+        android:id="@+id/nav_slideshow"
+        android:title="@string/menu_slideshow" />
+    <item
+        android:id="@+id/nav_tools"
+        android:title="@string/menu_tools" />
+</menu>
