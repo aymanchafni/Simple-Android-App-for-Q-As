@@ -29,7 +29,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".QuestionStatsActivity"
-        android:paddingTop="50dp">
+        android:padding="70dp">
 
 
     <TextView

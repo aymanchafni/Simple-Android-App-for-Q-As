@@ -1,5 +1,6 @@
 package com.ayman.hblik;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -8,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -23,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,9 +51,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class QuestionsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     TextView mName, mScore, mQuestion;
+    RadioGroup radio;
+    BottomNavigationItemView askMi;
     private static final String TAG = "QuestionsActivity";
     RadioButton rb1, rb2, rb3, rb4, rb5;
-    Button submitB, askB;
+    Button submitB;
     int id_last_question, optionChosen, score;
     String id_user;
     DocumentSnapshot documentSnapshot;
@@ -59,6 +64,7 @@ public class QuestionsActivity extends AppCompatActivity
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +77,6 @@ public class QuestionsActivity extends AppCompatActivity
 
         score =preferences.getInt("score",0);
         id_last_question=preferences.getInt("id_last_question",0);
-        String user_photo_id =preferences.getString("user_photo_id",null);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -89,7 +94,35 @@ public class QuestionsActivity extends AppCompatActivity
 
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id=menuItem.getItemId();
+                switch (id){
+                    case R.id.MyQuestions:
+                        Log.d("e", "onNavigationItemSelected: starting userA");
+                        Intent i = new Intent(QuestionsActivity.this, UserActivityActivity.class);
+                        Bundle b =new Bundle();
+                        b.putString("id_user", id_user);
+                        i.putExtras(b);
+                        startActivity(i);
+                        return true;
 
+                    case R.id.nav_home:
+
+                        return true;
+                    case R.id.nav_answer:
+                        Intent j = new Intent(QuestionsActivity.this, QuestionsActivity.class);
+                        startActivity(j);
+                        return true;
+                    case R.id.nav_ask:
+                        if (score < 25) {
+                            Toast.makeText(QuestionsActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Intent intent = new Intent(QuestionsActivity.this, CreateQuestionActivity.class);
+                            startActivity(intent);
+                        }
+
+                        return true;
+
+
+                }
                return false;
             }
         });
@@ -101,7 +134,7 @@ public class QuestionsActivity extends AppCompatActivity
         mScore = findViewById(R.id.score);
         mQuestion = findViewById(R.id.question);
         submitB = findViewById(R.id.submit);
-        askB = findViewById(R.id.mAsk);
+        radio=findViewById(R.id.radio);
         rb1 = findViewById(R.id.radioButton1);
         rb2 = findViewById(R.id.radioButton2);
         rb3 = findViewById(R.id.radioButton3);
@@ -113,7 +146,7 @@ public class QuestionsActivity extends AppCompatActivity
 
         mName.setText("Welcome " + firstName + " " + lastName);
 
-        setProfilePhoto(user_photo_id);
+        setProfilePhoto(id_user);
 
         submitB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,15 +154,11 @@ public class QuestionsActivity extends AppCompatActivity
                 onSubmit();
             }
         });
-        askB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onAsk();
-            }
-        });
 
+        askMi=findViewById(R.id.nav_ask);
 
         fill_new_content_start();
+
 
 
     }
@@ -162,13 +191,6 @@ public class QuestionsActivity extends AppCompatActivity
 
         });
 
-    }
-    private void onAsk() {
-        Intent i=new Intent(this,CreateQuestionActivity.class);
-        Bundle b=new Bundle();
-        b.putString("id_questioner",id_user);
-        i.putExtras(b);
-        startActivity(i);
     }
 
     public void onChoice(View view) {
@@ -243,7 +265,15 @@ public class QuestionsActivity extends AppCompatActivity
     int total_answers;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    @SuppressLint("RestrictedApi")
     private void fill_new_content() {
+        radio.clearCheck();
+        rb1.setBackgroundColor(0xFFFFFFFF);
+        rb2.setBackgroundColor(0xFFFFFFFF);
+        rb3.setBackgroundColor(0xFFFFFFFF);
+        rb4.setBackgroundColor(0xFFFFFFFF);
+        rb5.setBackgroundColor(0xFFFFFFFF);
+
 
         id_last_question+=empty_interval+quest_skipped+1;
         quest_skipped=0;
@@ -260,7 +290,7 @@ public class QuestionsActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
                         if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            String question,option1,option2,option3,option4,option5;
+                            String question,option1,option2,option3,option4,option5,id_questioner;
                             int answerNbr;
 
                             final DocumentReference sfDocRef = db.collection("questions").document(documentSnapshot.getId());
@@ -309,8 +339,9 @@ public class QuestionsActivity extends AppCompatActivity
 
                                 answerNbr=document.getLong("answerNbr").intValue();
                                 total_answers=document.getLong("total_answers").intValue();
+                                id_questioner=document.getString("id_questioner");
 
-                                if(answerNbr <= total_answers) {
+                                if(answerNbr <= total_answers || id_questioner.equals(id_user)) {
                                     quest_skipped++;
                                     continue;
                                 }
@@ -368,12 +399,17 @@ public class QuestionsActivity extends AppCompatActivity
                     }
                 });
 
-
+        if(score <25){
+            askMi.setEnabled(false);
+        }else {
+            askMi.setEnabled(true);
+        }
 
 
 
     }
 
+    @SuppressLint("RestrictedApi")
     private void fill_new_content_start() {
 
         mScore.setText("score : "+score);
@@ -452,6 +488,11 @@ public class QuestionsActivity extends AppCompatActivity
                     }
                 });
 
+        if(score <25){
+            askMi.setEnabled(false);
+        }else {
+            askMi.setEnabled(true);
+        }
 
     }
 
@@ -503,16 +544,22 @@ public class QuestionsActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        switch (id) {
+            case R.id.nav_settings:
 
-
-        if(id==R.id.MyQuestions) {
-    Log.d("e", "onNavigationItemSelected: starting userA");
-    Intent i = new Intent(QuestionsActivity.this, UserActivityActivity.class);
-    Bundle b =new Bundle();
-    b.putString("id_user", id_user);
-    i.putExtras(b);
-    this.startActivity(i);
+                return true;
+            case R.id.nav_help:
+                return true;
+            case R.id.nav_report:
+                return true;
+            case R.id.nav_share:
+                return true;
+            case R.id.nav_rate_us:
+                return true;
+            case R.id.nav_log_out:
+                return true;
         }
+
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);

@@ -12,15 +12,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -49,6 +53,11 @@ public class CreateQuestionActivity extends AppCompatActivity {
    String id_questioner;
     TextView mName,mScore;
     CircleImageView imageView;
+    int score;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+    private static final String TAG = "CreateQuestionActivity";;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,8 +66,7 @@ public class CreateQuestionActivity extends AppCompatActivity {
         id_questioner=preferences.getString("id_user",null);
         String firstName =preferences.getString("first_name",null);
         String lastName =preferences.getString("last_name",null);
-        int score =preferences.getInt("score",0);
-        String user_photo_id =preferences.getString("user_photo_id",null);
+        score =preferences.getInt("score",0);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -79,18 +87,69 @@ public class CreateQuestionActivity extends AppCompatActivity {
         mName.setText(firstName+" "+lastName);
         mScore.setText("score : "+score);
 
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+
+                switch (id) {
+                    case R.id.nav_settings:
+
+                        return true;
+                    case R.id.nav_help:
+                        return true;
+                    case R.id.nav_report:
+                        return true;
+                    case R.id.nav_share:
+                        return true;
+                    case R.id.nav_rate_us:
+                        return true;
+                    case R.id.nav_log_out:
+                        return true;
+                }
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
+
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
 
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id=menuItem.getItemId();
+                switch (id) {
+                    case R.id.nav_home:
 
+                        return true;
+                    case R.id.nav_answer:
+                        Intent j = new Intent(CreateQuestionActivity.this, QuestionsActivity.class);
+                        startActivity(j);
+                        return true;
+                    case R.id.nav_ask:
+                        if (score < 25) {
+                            Toast.makeText(CreateQuestionActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Intent intent = new Intent(CreateQuestionActivity.this, CreateQuestionActivity.class);
+                            startActivity(intent);
+                        }
+
+                        return true;
+                    case R.id.MyQuestions:
+                        Log.d("e", "onNavigationItemSelected: starting userA");
+                        Intent i = new Intent(CreateQuestionActivity.this, UserActivityActivity.class);
+                        Bundle b =new Bundle();
+                        b.putString("id_user", id_questioner);
+                        i.putExtras(b);
+                        startActivity(i);
+                        return true;
+                }
                 return false;
             }
         });
 
-        setProfilePhoto(user_photo_id);
+        setProfilePhoto(id_questioner);
 
 
 
@@ -110,6 +169,7 @@ public class CreateQuestionActivity extends AppCompatActivity {
                 onPost();
             }
         });
+
 
 
     }
@@ -144,22 +204,38 @@ public class CreateQuestionActivity extends AppCompatActivity {
 
 
     Map<String, Object> data = new HashMap<>();
-
+    FirebaseFirestore db;
+    String question;
+    String option1;
+    String option2;
+    String option3;
+    String option4;
+    String option5;
+    int AnsNbr;
     private void onPost() {
         if(CfieldEmpty()){
             return;
         }
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        String question=mQuestion.getText().toString();
-        String option1=mOption1.getText().toString();
-        String option2=mOption2.getText().toString();
-        int AnsNbr=Integer.parseInt(mAnsNbr.getText().toString());
-        String option3=mOption3.getText().toString();
-        String option4=mOption4.getText().toString();
-        String option5=mOption5.getText().toString();
 
 
+
+       db = FirebaseFirestore.getInstance();
+
+        question=mQuestion.getText().toString();
+        option1=mOption1.getText().toString();
+        option2=mOption2.getText().toString();
+        AnsNbr=Integer.parseInt(mAnsNbr.getText().toString());
+        option3=mOption3.getText().toString();
+        option4=mOption4.getText().toString();
+        option5=mOption5.getText().toString();
+
+        final int scorev = score - 10*AnsNbr;
+        if(scorev<0){
+            Toast.makeText(this, "You don't have enough score ! ", Toast.LENGTH_SHORT).show();
+            mAnsNbr.setError("Decrease the number of answers");
+            return;
+        }
+else{
         final DocumentReference sfDocRef = db.collection("questions").document("qXGHFFXNNANcUr2P0fEm");
 
 
@@ -177,39 +253,59 @@ public class CreateQuestionActivity extends AppCompatActivity {
                 // Success
                 return null;
             }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "Transaction success!");
+                data.put("question", question);
+                data.put("option1",option1);
+                data.put("option_1",0);
+                data.put("option2",option2);
+                data.put("option_2",0);
+                data.put("answerNbr",AnsNbr);
+                data.put("total_answers",0);
+                data.put("id_questioner", id_questioner);
+
+
+
+                if(!option3.equals("")) {
+                    data.put("option3", option3);
+                    data.put("option_3", 0);
+
+                }
+                if(!option4.equals("")) {
+                    data.put("option4", option4);
+                    data.put("option_4", 0);
+
+                }
+                if(!option5.equals("")) {
+                    data.put("option5", option5);
+                    data.put("option_5", 0);
+
+                }
+
+                db.collection("questions")
+                        .add(data);
+
+                final DocumentReference sfDocRef2 = db.collection("userh").document(id_questioner);
+                final WriteBatch batch = db.batch();
+                batch.update(sfDocRef2, "score", scorev);
+
+
+
+                preferences=getSharedPreferences("userPreferences",0);
+                editor=preferences.edit();
+                editor.putInt("score",scorev);
+                editor.apply();
+
+                Intent i =new Intent(CreateQuestionActivity.this, UserActivityActivity.class);
+                startActivity(i);
+            }
         });
 
 
-        data.put("question", question);
-        data.put("option1",option1);
-        data.put("option_1",0);
-        data.put("option2",option2);
-        data.put("option_2",0);
-        data.put("answerNbr",AnsNbr);
-        data.put("total_answers",0);
-        data.put("id_questioner", id_questioner);
 
-
-
-        if(!option3.equals("")) {
-            data.put("option3", option3);
-            data.put("option_3", 0);
-
-        }
-        if(!option4.equals("")) {
-            data.put("option4", option4);
-            data.put("option_4", 0);
-
-        }
-        if(!option5.equals("")) {
-            data.put("option5", option5);
-            data.put("option_5", 0);
-
-        }
-
-        db.collection("questions")
-                .add(data);
-    }
+}}
 
     private boolean CfieldEmpty() { 
         mQuestion.setError(null);

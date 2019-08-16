@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/MyQuestions"
-        android:title="My Questions"
-        />
+
     <item
         android:id="@+id/nav_home"
+        android:icon="@drawable/ic_menu_camera"
         android:title="@string/menu_home" />
     <item
-        android:id="@+id/nav_gallery"
-        android:title="@string/menu_gallery" />
+        android:id="@+id/nav_answer"
+        android:icon="@drawable/ic_menu_camera"
+        android:title="Answer" />
     <item
-        android:id="@+id/nav_slideshow"
-        android:title="@string/menu_slideshow" />
+        android:id="@+id/nav_ask"
+        android:icon="@drawable/ic_menu_camera"
+        android:title="Ask" />
+
     <item
-        android:id="@+id/nav_tools"
-        android:title="@string/menu_tools" />
+        android:id="@+id/MyQuestions"
+        android:icon="@drawable/ic_menu_camera"
+
+        android:title="My Questions"
+        />
+
 </menu>

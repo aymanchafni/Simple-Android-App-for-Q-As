@@ -18,7 +18,8 @@
     <LinearLayout
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+        android:padding="30dp"
     android:orientation="vertical"
     tools:context=".QuestionsActivity"
     >
@@ -40,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="3"
-        android:background="@drawable/question_background">
+        android:background="@drawable/back_quest">
 
         <TextView
             android:id="@+id/question"
@@ -66,10 +67,10 @@
 
 
     <RadioGroup
+        android:id="@+id/radio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="10dp"
-        android:paddingLeft="10dp">
+        android:padding="20dp">
 
 
         <RadioButton
@@ -78,8 +79,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:onClick="onChoice"
-            android:text="RadioButton" />
+            android:onClick="onChoice" />
 
         <RadioButton
             android:id="@+id/radioButton2"
@@ -87,8 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:onClick="onChoice"
-            android:text="RadioButton" />
+            android:onClick="onChoice" />
 
         <RadioButton
             android:id="@+id/radioButton3"
@@ -97,7 +96,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:onClick="onChoice"
-            android:text="RadioButton"
             android:visibility="gone" />
 
         <RadioButton
@@ -107,7 +105,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:onClick="onChoice"
-            android:text="RadioButton"
             android:visibility="gone" />
 
         <RadioButton
@@ -117,38 +114,22 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:onClick="onChoice"
-            android:text="RadioButton"
             android:visibility="gone" />
     </RadioGroup>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingRight="30dp"
-        android:paddingEnd="30dp">
 
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
 
         <Button
             android:id="@+id/submit"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="submit" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/app_color"
+            android:text="submit"
+            android:textColor="#ffffff"/>
 
-    </LinearLayout>
 
 
-
-    <Button
-        android:id="@+id/mAsk"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ask" />
-
-    <Space
+        <Space
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1" />

@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     Button backToPrincipal,gotoQuestions,chooseProfilePhoto;
     EditText pcEt;
     Bitmap profile;
-    private String user_photo_id,id_user;
+    private String id_user;
 
 
 
@@ -146,10 +146,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
-        UUID uuid=new UUID(64,128);
-        String photoId=uuid.toString();
-        user_photo_id =photoId;
-        StorageReference mountainsRef = storageRef.child("profilePhotos/"+photoId+".png");
+
+        StorageReference mountainsRef = storageRef.child("profilePhotos/"+id_user+".png");
 
         UploadTask uploadTask = mountainsRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -193,7 +191,6 @@ public class RegisterActivity extends AppCompatActivity {
         user.put("password", password);
         user.put("id_last_question",1);
         user.put("score",0);
-        user.put("user_photo_id",user_photo_id);
 
 
 

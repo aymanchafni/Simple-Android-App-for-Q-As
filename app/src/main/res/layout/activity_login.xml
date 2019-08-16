@@ -5,7 +5,7 @@
     android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#341d4b"
+    android:background="@drawable/backg_login"
     android:orientation="vertical"
     android:paddingRight="80dp"
     android:paddingEnd="80dp"

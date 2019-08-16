@@ -4,8 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,11 +19,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -33,22 +38,22 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class QuestionStatsActivity extends AppCompatActivity {
     String question, option_1, option_2, option_3, option_4,option_5;
-    int option1, option2,option3, option4, option5,id_question,answerNbr;
+    int option1, option2,option3, option4, option5,id_question,answerNbr,score;
     TextView mQuestion,mOption1,mOption2,mOption3,mOption4,mOption5,bar1,bar2,bar3,bar4,bar5;
     private static final String TAG = "QuestionStatsActivity";
-
+BottomNavigationItemView askMi;
     TextView mName,mScore;
     CircleImageView imageView;
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question_stats);
         SharedPreferences preferences = getSharedPreferences("userPreferences",MODE_PRIVATE);
-        String id_user=preferences.getString("id_user",null);
+        final String id_user=preferences.getString("id_user",null);
         String firstName =preferences.getString("first_name",null);
         String lastName =preferences.getString("last_name",null);
-        int score =preferences.getInt("score",0);
-        String user_photo_id =preferences.getString("user_photo_id",null);
+        score =preferences.getInt("score",0);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -68,19 +73,75 @@ public class QuestionStatsActivity extends AppCompatActivity {
         mName.setText(firstName+" "+lastName);
         mScore.setText("score : "+score);
 
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+
+                switch (id) {
+                    case R.id.nav_settings:
+
+                        return true;
+                    case R.id.nav_help:
+                        return true;
+                    case R.id.nav_report:
+                        return true;
+                    case R.id.nav_share:
+                        return true;
+                    case R.id.nav_rate_us:
+                        return true;
+                    case R.id.nav_log_out:
+                        return true;
+                }
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
 
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
+        askMi=findViewById(R.id.nav_ask);
+        if(score <25){
+            askMi.setEnabled(false);
+        }
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
 
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id=menuItem.getItemId();
+                switch (id) {
+                    case R.id.nav_home:
 
+                        return true;
+                    case R.id.nav_answer:
+                        Intent j = new Intent(QuestionStatsActivity.this, QuestionsActivity.class);
+                        startActivity(j);
+                        return true;
+                    case R.id.nav_ask:
+                        if (score < 25) {
+                            Toast.makeText(QuestionStatsActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Intent intent = new Intent(QuestionStatsActivity.this, CreateQuestionActivity.class);
+                            startActivity(intent);
+                        }
+
+                        return true;
+
+                        case R.id.MyQuestions:
+                        Log.d("e", "onNavigationItemSelected: starting userA");
+                        Intent i = new Intent(QuestionStatsActivity.this, UserActivityActivity.class);
+                        Bundle b =new Bundle();
+                        b.putString("id_user", id_user);
+                        i.putExtras(b);
+                        startActivity(i);
+                        return true;
+                }
                 return false;
             }
         });
 
-        setProfilePhoto(user_photo_id);
+
+        setProfilePhoto(id_user);
 
 
         Bundle b = getIntent().getExtras();

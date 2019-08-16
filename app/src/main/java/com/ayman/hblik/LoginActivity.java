@@ -5,10 +5,16 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -35,13 +41,26 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.annotations.NotNull;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -49,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
     TextInputLayout mEmail, mPassword;
     Button register, login, googleSignIn;
     EditText pEt,eEmail;
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
 
     // [START declare_auth]
@@ -148,7 +167,6 @@ int score;
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
                 // [START_EXCLUDE]
-
                 // [END_EXCLUDE]
              }
         }
@@ -156,96 +174,137 @@ int score;
     // [END onactivityresult]
 
     // [START auth_with_google]
+
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
         // [START_EXCLUDE silent]
         // [END_EXCLUDE]
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            final FirebaseUser user = mAuth.getCurrentUser();
-                            final String user_name=user.getDisplayName();
-                            final String user_id=user.getUid();
+        mAuth.signInWithCredential(credential);
 
-                            final Intent i =new Intent(LoginActivity.this,QuestionsActivity.class);
-                            final Bundle b=new Bundle();
-                            b.putString("firstName",user_name);
-                            b.putString("lastName","");
-                            b.putString("id_user",user_id);
+         firstName=acct.getGivenName();
+         lastName =acct.getFamilyName();
+        String email=acct.getEmail();
+        Uri photo_google_uri = acct.getPhotoUrl();
+        Bitmap bitmap = null;
 
-                            FirebaseFirestore db=FirebaseFirestore.getInstance();
-                            db.collection("userh").whereEqualTo(FieldPath.documentId(),user_id).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if(task.isSuccessful() && task.getResult() !=null)
-                                    {
-                                        for (QueryDocumentSnapshot document : task.getResult()){
-                                            int id_last_question=document.getLong("id_last_question").intValue();
-                                            int score=document.getLong("score").intValue();
+        try {
 
-                                            b.putInt("id_last_question",id_last_question);
-                                            b.putInt("score",score);
+            bitmap = getThumbnail(photo_google_uri);
+            savePhotoInFirebase(bitmap);
+            Log.d(TAG, "firebaseAuthWithGoogle: I M here");
 
-                                            break;
-                                        }
-
-                                    }else{
-                                        createNewUser(user);
-                                        b.putInt("id_last_question",1);
-                                        b.putInt("score",0);
-                                    }
-
-                                    i.putExtras(b);
-                                    startActivity(i);
-
-                                }
-                            });
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        }
 
-                        // [START_EXCLUDE]
-                        // [END_EXCLUDE]
-                    }
-                });
-    }
+        Map<String,Object> data = new HashMap<>();
 
-    private void createNewUser(FirebaseUser user) {
         FirebaseFirestore db=FirebaseFirestore.getInstance();
-        String user_id=user.getUid();
-        String name=user.getDisplayName();
-        String email=user.getEmail();
-        Map<String, Object> data = new HashMap<>();
-        data.put("id",user_id);
-        data.put("id_last_question",1);
-        data.put("Name",name);
-        data.put("score",0);
+
+        data.put("firstName",firstName);
+        data.put("lastName",lastName);
         data.put("email",email);
+        data.put("birthday",null);
+        data.put("signed_google","yes");
+        data.put("id_last_question",1);
+        data.put("score",0);
 
+        Task<DocumentReference> adding = db.collection("userh").add(data);
+        
+        adding.addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                if(task.isSuccessful()) {
+                    id_user = task.getResult().getId();
+                    preferences = getSharedPreferences("userPreferences", 0);
 
-        db.collection("userh").document(user_id).set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("DDDDDDDDD HHHHHHHHHHHHH","user added successfully");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d("NOOOOOOOOOOOOOOOOOOOO","lam yahduth chay2");
+                    editor = preferences.edit();
+                    editor.putString("first_name", firstName);
+                    editor.putString("last_name", lastName);
+                    editor.putInt("score", 0);
+                    editor.putInt("id_last_question", 1);
+                    editor.putString("id_user", id_user);
+                    editor.putString("user_photo_id", user_photo_id);
+                    editor.apply();
+
+                    Intent i = new Intent(LoginActivity.this, QuestionsActivity.class);
+                    startActivity(i);
+                }else {
+                    Log.d(TAG, "onComplete: error adding docCOD");
+                }
+
             }
         });
-
+        
+        
 
     }
+
+    public Bitmap getThumbnail(Uri uri) throws FileNotFoundException, IOException {
+       double THUMBNAIL_SIZE=1000;
+        InputStream input = this.getContentResolver().openInputStream(uri);
+
+        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
+        onlyBoundsOptions.inJustDecodeBounds = true;
+        onlyBoundsOptions.inDither=true;//optional
+        onlyBoundsOptions.inPreferredConfig=Bitmap.Config.ARGB_8888;//optional
+        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
+        input.close();
+        if ((onlyBoundsOptions.outWidth == -1) || (onlyBoundsOptions.outHeight == -1))
+            return null;
+
+        int originalSize = (onlyBoundsOptions.outHeight > onlyBoundsOptions.outWidth) ? onlyBoundsOptions.outHeight : onlyBoundsOptions.outWidth;
+
+        double ratio = (originalSize > THUMBNAIL_SIZE) ? (originalSize / THUMBNAIL_SIZE) : 1.0;
+
+        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        bitmapOptions.inSampleSize = getPowerOfTwoForSampleRatio(ratio);
+        bitmapOptions.inDither=true;//optional
+        bitmapOptions.inPreferredConfig=Bitmap.Config.ARGB_8888;//optional
+        input = this.getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+        input.close();
+        return bitmap;
+    }
+
+    private static int getPowerOfTwoForSampleRatio(double ratio){
+        int k = Integer.highestOneBit((int)Math.floor(ratio));
+        if(k==0) return 1;
+        else return k;
+    }
+    private void savePhotoInFirebase(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+       
+        StorageReference mountainsRef = storageRef.child("profilePhotos/"+id_user+".png");
+
+        UploadTask uploadTask = mountainsRef.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
+            }
+        });
+    }
+
+
     // [END auth_with_google]
 
     private void googleSignIn() {
@@ -293,7 +352,6 @@ int score;
                               firstName=document.getString("firstName");
                               lastName=document.getString("lastName");
                               id_user=document.getId();
-                              user_photo_id=document.getString("user_photo_id");
                               score =document.getLong("score").intValue();
                                 id_last_question =document.getLong("id_last_question").intValue();
 
@@ -310,7 +368,6 @@ int score;
                                 editor.putInt("score",score);
                                 editor.putInt("id_last_question", id_last_question);
                                 editor.putString("id_user",id_user);
-                                editor.putString("user_photo_id",user_photo_id);
                                 editor.apply();
 
                             startActivity(i);

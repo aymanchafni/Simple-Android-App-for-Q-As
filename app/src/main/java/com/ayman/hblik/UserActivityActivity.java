@@ -4,10 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -47,12 +49,12 @@ public class UserActivityActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_activity);
+
         SharedPreferences preferences = getSharedPreferences("userPreferences",MODE_PRIVATE);
         id_user=preferences.getString("id_user",null);
         String firstName =preferences.getString("first_name",null);
         String lastName =preferences.getString("last_name",null);
         int score =preferences.getInt("score",0);
-        String user_photo_id =preferences.getString("user_photo_id",null);
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -66,6 +68,7 @@ public class UserActivityActivity extends AppCompatActivity {
 
         NavigationView navigationView = findViewById(R.id.nav_view);
 
+
         View v0 = navigationView.getHeaderView(0);
         imageView = v0.findViewById(R.id.profilePhoto);
         View v = navigationView.getHeaderView(0);
@@ -73,13 +76,33 @@ public class UserActivityActivity extends AppCompatActivity {
         mScore = findViewById(R.id.score);
         mName.setText(firstName+" "+lastName);
         mScore.setText("score : "+score);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
 
+                switch (id) {
+                    case R.id.nav_settings:
 
+                        return true;
+                    case R.id.nav_help:
+                        return true;
+                    case R.id.nav_report:
+                        return true;
+                    case R.id.nav_share:
+                        return true;
+                    case R.id.nav_rate_us:
+                        return true;
+                    case R.id.nav_log_out:
+                        return true;
+                }
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
 
-        setProfilePhoto(user_photo_id);
-
-
-
+        setProfilePhoto(id_user);
 
     initQuestions();
     }
@@ -124,11 +147,12 @@ public class UserActivityActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                                      String question,id;
-                                     int answerNbr;
+                                     int answerNbr,Id;
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 question=document.getString("question");
                                 answerNbr=document.getLong("total_answers").intValue();
-                                id=Integer.toString(document.getLong("id").intValue());
+                                Id=document.getLong("id").intValue();
+                                id=Integer.toString(Id);
 
                                 questions.add(question);
                                 answerNbrs.add(""+answerNbr);
