@@ -1,24 +1,12 @@
 package com.ayman.hblik;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,13 +17,24 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -44,6 +43,8 @@ import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -63,6 +64,7 @@ public class QuestionsActivity extends AppCompatActivity
     private int empty_interval;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
+    FirebaseAuth mAuth;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -105,15 +107,16 @@ public class QuestionsActivity extends AppCompatActivity
                         return true;
 
                     case R.id.nav_home:
-
+                        Intent h = new Intent(QuestionsActivity.this, HomeActivity.class);
+                        startActivity(h);
                         return true;
                     case R.id.nav_answer:
                         Intent j = new Intent(QuestionsActivity.this, QuestionsActivity.class);
                         startActivity(j);
                         return true;
                     case R.id.nav_ask:
-                        if (score < 25) {
-                            Toast.makeText(QuestionsActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
+                        if (score < 50) {
+                            Toast.makeText(QuestionsActivity.this, "You should have at least 50 pts", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent intent = new Intent(QuestionsActivity.this, CreateQuestionActivity.class);
                             startActivity(intent);
@@ -126,6 +129,8 @@ public class QuestionsActivity extends AppCompatActivity
                return false;
             }
         });
+        bottomNavigationView.getMenu().findItem(R.id.nav_home).setChecked(false);
+        bottomNavigationView.getMenu().findItem(R.id.nav_answer).setChecked(true);
 
         View v0 = navigationView.getHeaderView(0);
         imageView = v0.findViewById(R.id.profilePhoto);
@@ -144,7 +149,7 @@ public class QuestionsActivity extends AppCompatActivity
 
 
 
-        mName.setText("Welcome " + firstName + " " + lastName);
+        mName.setText(getResources().getString(R.string.name,firstName,lastName));
 
         setProfilePhoto(id_user);
 
@@ -162,8 +167,6 @@ public class QuestionsActivity extends AppCompatActivity
 
 
     }
-
-
 
     private void setProfilePhoto(String id){
         FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -278,7 +281,7 @@ public class QuestionsActivity extends AppCompatActivity
         id_last_question+=empty_interval+quest_skipped+1;
         quest_skipped=0;
         score+=5;
-        mScore.setText("score : "+score);
+        mScore.setText(getResources().getString(R.string.score,score));
 
 
 
@@ -289,7 +292,7 @@ public class QuestionsActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        if (task.isSuccessful() && !Objects.requireNonNull(task.getResult()).isEmpty()) {
                             String question,option1,option2,option3,option4,option5,id_questioner;
                             int answerNbr;
 
@@ -298,10 +301,10 @@ public class QuestionsActivity extends AppCompatActivity
 
                             db.runTransaction(new Transaction.Function<Void>() {
                                 @Override
-                                public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+                                public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
 
                                     DocumentSnapshot snapshot = transaction.get(sfDocRef);
-                                    int times_option_chosen= snapshot.getLong("option_"+optionChosen).intValue();
+                                    int times_option_chosen= Objects.requireNonNull(snapshot.getLong("option_" + optionChosen)).intValue();
                                     transaction.update(sfDocRef, "option_"+optionChosen, times_option_chosen+1);
 
                                     // Success
@@ -337,16 +340,17 @@ public class QuestionsActivity extends AppCompatActivity
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
 
-                                answerNbr=document.getLong("answerNbr").intValue();
-                                total_answers=document.getLong("total_answers").intValue();
+                                answerNbr= Objects.requireNonNull(document.getLong("answerNbr")).intValue();
+                                total_answers= Objects.requireNonNull(document.getLong("total_answers")).intValue();
                                 id_questioner=document.getString("id_questioner");
 
+                                assert id_questioner != null;
                                 if(answerNbr <= total_answers || id_questioner.equals(id_user)) {
                                     quest_skipped++;
                                     continue;
                                 }
 
-                                int current_quest_id=document.getLong("id").intValue();
+                                int current_quest_id= Objects.requireNonNull(document.getLong("id")).intValue();
                                empty_interval=current_quest_id-id_last_question;
 
                                 question=document.getString("question");
@@ -399,11 +403,6 @@ public class QuestionsActivity extends AppCompatActivity
                     }
                 });
 
-        if(score <25){
-            askMi.setEnabled(false);
-        }else {
-            askMi.setEnabled(true);
-        }
 
 
 
@@ -412,7 +411,7 @@ public class QuestionsActivity extends AppCompatActivity
     @SuppressLint("RestrictedApi")
     private void fill_new_content_start() {
 
-        mScore.setText("score : "+score);
+        mScore.setText(getResources().getString(R.string.score,score));
 
 
 
@@ -422,7 +421,7 @@ public class QuestionsActivity extends AppCompatActivity
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        if (task.isSuccessful() && !Objects.requireNonNull(task.getResult()).isEmpty()) {
                             String question,option1,option2,option3,option4,option5;
                             int answerNbr;
 
@@ -431,8 +430,8 @@ public class QuestionsActivity extends AppCompatActivity
 
 
 
-                                answerNbr=document.getLong("answerNbr").intValue();
-                                total_answers=document.getLong("total_answers").intValue();
+                                answerNbr= Objects.requireNonNull(document.getLong("answerNbr")).intValue();
+                                total_answers= Objects.requireNonNull(document.getLong("total_answers")).intValue();
 
 
                                 if(answerNbr <= total_answers) {
@@ -488,11 +487,6 @@ public class QuestionsActivity extends AppCompatActivity
                     }
                 });
 
-        if(score <25){
-            askMi.setEnabled(false);
-        }else {
-            askMi.setEnabled(true);
-        }
 
     }
 
@@ -512,7 +506,8 @@ public class QuestionsActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            Intent i = new Intent(this,HomeActivity.class);
+            startActivity(i);
         }
     }
 
@@ -524,7 +519,7 @@ public class QuestionsActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -546,17 +541,31 @@ public class QuestionsActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_settings:
-
+               Intent i =new Intent(this,SettingsActivity.class);
+               startActivity(i);
                 return true;
             case R.id.nav_help:
+                Intent j =new Intent(this,HelpActivity.class);
+                startActivity(j);
                 return true;
             case R.id.nav_report:
+                Intent k =new Intent(this,ReportActivity.class);
+                startActivity(k);
                 return true;
             case R.id.nav_share:
                 return true;
             case R.id.nav_rate_us:
                 return true;
             case R.id.nav_log_out:
+                SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
+                preferences.edit().clear().apply();
+                mAuth=FirebaseAuth.getInstance();
+                mAuth.signOut();
+                LoginManager.getInstance().logOut();
+
+                Intent intent =new Intent(QuestionsActivity.this,LoginActivity.class);
+                startActivity(intent);
+                finish();
                 return true;
         }
 

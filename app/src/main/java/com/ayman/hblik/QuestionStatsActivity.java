@@ -1,13 +1,7 @@
 package com.ayman.hblik;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -16,34 +10,44 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.DecimalFormat;
+import java.util.Objects;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class QuestionStatsActivity extends AppCompatActivity {
     String question, option_1, option_2, option_3, option_4,option_5;
     int option1, option2,option3, option4, option5,id_question,answerNbr,score;
-    TextView mQuestion,mOption1,mOption2,mOption3,mOption4,mOption5,bar1,bar2,bar3,bar4,bar5;
+    TextView mQuestion,mOption1,mOption2,mOption3,mOption4,mOption5,bar1,bar2,bar3,bar4,bar5,option3_color,option4_color,option5_color;
     private static final String TAG = "QuestionStatsActivity";
-BottomNavigationItemView askMi;
     TextView mName,mScore;
     CircleImageView imageView;
+    LinearLayout stat_3,stat_4,stat_5;
     @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +67,7 @@ BottomNavigationItemView askMi;
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
         NavigationView navigationView = findViewById(R.id.nav_view);
 
         View v0 = navigationView.getHeaderView(0);
@@ -70,8 +75,17 @@ BottomNavigationItemView askMi;
         View v = navigationView.getHeaderView(0);
         mName = v.findViewById(R.id.name);
         mScore = findViewById(R.id.score);
-        mName.setText(firstName+" "+lastName);
-        mScore.setText("score : "+score);
+        mName.setText(getResources().getString(R.string.name,firstName,lastName));
+        mScore.setText(getResources().getString(R.string.score,score));
+
+        stat_3=findViewById(R.id.stat_3);
+        stat_4=findViewById(R.id.stat_4);
+        stat_5=findViewById(R.id.stat_5);
+
+        option3_color=findViewById(R.id.option3_color);
+        option4_color=findViewById(R.id.option4_color);
+        option5_color=findViewById(R.id.option5_color);
+
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -80,17 +94,32 @@ BottomNavigationItemView askMi;
 
                 switch (id) {
                     case R.id.nav_settings:
-
+                        Intent i =new Intent(QuestionStatsActivity.this,SettingsActivity.class);
+                        startActivity(i);
                         return true;
                     case R.id.nav_help:
+                        Intent j =new Intent(QuestionStatsActivity.this,HelpActivity.class);
+                        startActivity(j);
                         return true;
                     case R.id.nav_report:
+                        Intent k =new Intent(QuestionStatsActivity.this,ReportActivity.class);
+                        startActivity(k);
                         return true;
                     case R.id.nav_share:
                         return true;
                     case R.id.nav_rate_us:
                         return true;
                     case R.id.nav_log_out:
+                        SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
+                        preferences.edit().clear().apply();
+                        Intent intent =new Intent(QuestionStatsActivity.this,LoginActivity.class);
+                        FirebaseAuth mAuth;
+                        mAuth= FirebaseAuth.getInstance();
+                        mAuth.signOut();
+                        LoginManager.getInstance().logOut();
+
+                        startActivity(intent);
+                        finish();
                         return true;
                 }
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -100,10 +129,7 @@ BottomNavigationItemView askMi;
         });
 
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
-        askMi=findViewById(R.id.nav_ask);
-        if(score <25){
-            askMi.setEnabled(false);
-        }
+
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
 
@@ -111,15 +137,16 @@ BottomNavigationItemView askMi;
                 int id=menuItem.getItemId();
                 switch (id) {
                     case R.id.nav_home:
-
+                        Intent h = new Intent(QuestionStatsActivity.this, HomeActivity.class);
+                        startActivity(h);
                         return true;
                     case R.id.nav_answer:
                         Intent j = new Intent(QuestionStatsActivity.this, QuestionsActivity.class);
                         startActivity(j);
                         return true;
                     case R.id.nav_ask:
-                        if (score < 25) {
-                            Toast.makeText(QuestionStatsActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
+                        if (score < 50) {
+                            Toast.makeText(QuestionStatsActivity.this, "You should have at least 50 pts", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent intent = new Intent(QuestionStatsActivity.this, CreateQuestionActivity.class);
                             startActivity(intent);
@@ -145,6 +172,7 @@ BottomNavigationItemView askMi;
 
 
         Bundle b = getIntent().getExtras();
+        assert b != null;
         answerNbr = b.getInt("answerNbr");
         question = b.getString("question");
         id_question = b.getInt("id_question");
@@ -158,17 +186,17 @@ BottomNavigationItemView askMi;
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                option1 = document.getLong("option_1").intValue();
-                                option2 = document.getLong("option_2").intValue();
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                option1 = Objects.requireNonNull(document.getLong("option_1")).intValue();
+                                option2 = Objects.requireNonNull(document.getLong("option_2")).intValue();
                                 if (document.getLong("option_3") != null) {
-                                    option3 = document.getLong("option_3").intValue();
+                                    option3 = Objects.requireNonNull(document.getLong("option_3")).intValue();
                                 }
                                 if (document.getLong("option_4") != null) {
-                                    option4 = document.getLong("option_4").intValue();
+                                    option4 = Objects.requireNonNull(document.getLong("option_4")).intValue();
                                 }
                                 if (document.getLong("option_5") != null) {
-                                    option5 = document.getLong("option_5").intValue();
+                                    option5 = Objects.requireNonNull(document.getLong("option_5")).intValue();
                                 }
 
                                 option_1 = document.getString("option1");
@@ -190,6 +218,9 @@ BottomNavigationItemView askMi;
 
 
     }
+
+
+
     private void setProfilePhoto(String id){
         FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -236,8 +267,15 @@ BottomNavigationItemView askMi;
         mOption2.setText(option_2);
 
 
+        Log.d(TAG, "fillContent: option_1 :"+option_1);
+        Log.d(TAG, "fillContent: option_2 :"+option_2);
+        Log.d(TAG, "fillContent: option_3 :"+option_3);
+        Log.d(TAG, "fillContent: option_4 :"+option_4);
+        Log.d(TAG, "fillContent: option_5 :"+option_5);
 
         Log.d(TAG, "fillContent: "+option1+"    "+answerNbr);
+
+
         if(answerNbr== 0){
             changeWidth(bar1,0);
             changeWidth(bar2,0);
@@ -248,8 +286,6 @@ BottomNavigationItemView askMi;
         }
 
         if(option_3 != null) {
-            mOption3.setVisibility(View.VISIBLE);
-            bar3.setVisibility(View.VISIBLE);
 
             mOption3.setText(option_3);
             if(answerNbr== 0){
@@ -259,11 +295,13 @@ BottomNavigationItemView askMi;
                      changeWidth(bar3,option3);            }
         }
         else
+        {
             mOption3.setVisibility(View.GONE);
+            option3_color.setVisibility(View.GONE);
+            stat_3.setVisibility(View.GONE);}
+
 
         if(option_4 != null) {
-            mOption4.setVisibility(View.VISIBLE);
-            bar4.setVisibility(View.VISIBLE);
 
             mOption4.setText(option_4);
             if(answerNbr== 0){
@@ -273,12 +311,15 @@ BottomNavigationItemView askMi;
 
                 changeWidth(bar4,option4);            }
         }
-        else
+        else {
             mOption4.setVisibility(View.GONE);
+            option4_color.setVisibility(View.GONE);
+            stat_4.setVisibility(View.GONE);
+        }
+
 
         if(option_5 != null) {
-            mOption5.setVisibility(View.VISIBLE);
-            bar5.setVisibility(View.VISIBLE);
+
             mOption5.setText(option_5);
             if(answerNbr== 0){
                 changeWidth(bar5,0);
@@ -287,19 +328,24 @@ BottomNavigationItemView askMi;
                        changeWidth(bar5,option5);
             }
         }
-        else
+        else {
             mOption5.setVisibility(View.GONE);
+            option5_color.setVisibility(View.GONE);
+            stat_5.setVisibility(View.GONE);
+        }
 
     }
 
     private void changeWidth(TextView view,int option){
-        float width = view.getLayoutParams().width;
+        float height = view.getLayoutParams().height;
 
-        float newWidth=width*((float)option/(float)answerNbr);
+        float proportion=(float)option/answerNbr;
+        float newHeight=height*(proportion);
 
-        Log.d(TAG, "changeWidth: "+width+"   "+newWidth+"   "+ (int)newWidth
+        Log.d(TAG, "changeWidth: "+height+"   "+newHeight+"   "+ (int)newHeight
         +"   option : "+option+"  ansN : "+answerNbr);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int)newWidth,  100);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100,  (int)newHeight);
         view.setLayoutParams(layoutParams);
+        view.setText(new DecimalFormat("##.#").format(proportion*100)+"%");
     }
 }

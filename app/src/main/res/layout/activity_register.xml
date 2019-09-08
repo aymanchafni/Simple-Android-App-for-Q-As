@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".RegisterActivity"
-    android:background="#341d4b">
-<LinearLayout
-    android:layout_width="match_parent"
+
+
+<LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:paddingRight="100dp"
-    android:paddingLeft="40dp"
-    android:paddingTop="40dp"
-    >
+    android:paddingEnd="50dp"
+    android:paddingStart="40dp"
+    android:paddingTop="100dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ImageView
         android:id="@+id/imageView2"
@@ -24,11 +19,11 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign-Up"
+        android:text="@string/sign_up"
         android:textAlignment="center"
-        android:textSize="50dp"
-        android:textColor="#ffffff"
-        android:fontFamily="serif-monospace"
+        android:textSize="50sp"
+        android:textColor="@color/app_color"
+        android:paddingBottom="60dp"
         />
 
 
@@ -39,7 +34,7 @@
         app:errorEnabled="true"
         app:counterEnabled="true"
         app:counterMaxLength="15"
-        android:textColorHint="#26A2D7FF"
+        android:textColorHint="@color/app_color_light"
 
         >
 
@@ -48,14 +43,14 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:hint="first Name"
-        android:textColor="#ffffff"/>
+        android:hint="@string/first_name"
+        android:textColor="@color/app_color"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
 
 
-    />
+
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/lName"
@@ -64,8 +59,8 @@
         app:errorEnabled="true"
         app:counterEnabled="true"
         app:counterMaxLength="15"
-        android:textColorHint="#26A2D7FF"
-        
+        android:textColorHint="@color/app_color_light"
+        android:paddingBottom="30dp"
 
         >
 
@@ -74,165 +69,91 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="last Name"
-            android:textColor="#ffffff"/>
+            android:hint="@string/last_name"
+            android:textColor="@color/app_color"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
-
-
-
-
-    />
-
-    <com.google.android.material.textfield.TextInputLayout
+    <TextView
         android:id="@+id/birthday"
-        android:layout_height="wrap_content"
+        android:text="@string/birthday"
         android:layout_width="match_parent"
-        app:errorEnabled="true"
-        android:textColorHint="#26A2D7FF"
+        android:layout_height="wrap_content"
+        android:textSize="17sp"
+        android:textColor="@color/app_color_light"
+        android:paddingBottom="30dp"
+        android:paddingStart="10dp"/>
 
 
-        >
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="50dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="date"
-            android:hint="Birthday"
-            android:textColor="#ffffff"
-
-            />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:background="@drawable/spinner_border"
+    android:layout_marginEnd="5dp"
+    android:orientation="horizontal">
+<Spinner
+    android:id="@+id/birth_day"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/dropic"/>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/emailR"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        app:errorEnabled="true"
-        android:textColorHint="#26A2D7FF"
-
-
-
-        >
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textEmailAddress"
-            android:hint="Email"
-            android:textColor="#ffffff"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-
-    />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/passwordR"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        app:errorEnabled="true"
-        app:passwordToggleEnabled="true"
-        android:textColorHint="#26A2D7FF"
-
-
-        >
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPassword"
-            android:hint="Password"
-            android:textColor="#ffffff"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-
-
-    />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/passwordConfirm"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        app:errorEnabled="true"
-        app:passwordToggleEnabled="true"
-        android:textColorHint="#26A2D7FF"
-
-        >
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/pcEt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPassword"
-            android:hint="Confirm your Password"
-            android:textColor="#ffffff"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
+</LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/spinner_border"
+        android:layout_marginEnd="5dp"
         android:orientation="horizontal">
+        <Spinner
+            android:id="@+id/birth_month"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Choose a profile photo"
-            android:textColor="#ffffff" />
 
-        <Button
-            android:id="@+id/chooseProfilePhotoB"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="0dp"
-            android:layout_weight="1"
-            android:ellipsize="none"
-            android:text="..." />
     </LinearLayout>
 
     <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-        android:layout_weight="1"
-    android:orientation="horizontal">
-
-    <Button
-        android:id="@+id/backToPrincipal"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text="back"
-
-        />
-        <Space
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/spinner_border"
+        android:orientation="horizontal"
+        android:layout_marginEnd="5dp">
+        <Spinner
+            android:id="@+id/birth_year"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"/>
+            android:src="@drawable/dropic"
+            android:layout_gravity="center"
+            />
 
-    <Button
-        android:id="@+id/gotoQuestions"
+    </LinearLayout>
+</LinearLayout>
+
+    <ImageView
+        android:id="@+id/next_register"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text="done !"
-        />
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:src="@drawable/goic"
+        android:layout_gravity="end"
+        android:padding="15dp"/>
+
 
 </LinearLayout>
-
-</ScrollView>

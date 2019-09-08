@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="TextView"
+            android:textColor="@color/white"
             />
 
 
@@ -35,16 +35,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="80dp"
+    android:padding="20dp"
     >
         <EditText
             android:id="@+id/mQuestion"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_question_background"
+            android:layout_margin="30dp"
+            android:textAlignment="center"
             android:ems="10"
+            android:padding="50dp"
             android:gravity="start|top"
-            android:hint="Ask a question"
-            android:inputType="textMultiLine" />
+            android:hint="@string/ask_question"
+            android:inputType="textMultiLine"
+            android:maxLength="100"/>
 
 
 
@@ -53,10 +58,15 @@
 
         <EditText
             android:id="@+id/mOption1"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_options_background"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+
+            android:maxLength="50"
             android:ems="10"
-            android:hint="option 1 *" />
+            android:hint="@string/option1" />
 
 
 
@@ -64,10 +74,15 @@
 
         <EditText
             android:id="@+id/mOption2"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_options_background"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+
+            android:maxLength="50"
             android:ems="10"
-            android:hint="option 2 *" />
+            android:hint="@string/option2" />
 
 
 
@@ -75,10 +90,15 @@
 
         <EditText
             android:id="@+id/mOption3"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_options_background"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+
+            android:maxLength="50"
             android:ems="10"
-            android:hint="option 3" />
+            android:hint="@string/option3" />
 
 
 
@@ -86,30 +106,146 @@
 
         <EditText
             android:id="@+id/mOption4"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_options_background"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+
+            android:maxLength="50"
             android:ems="10"
-            android:hint="option 4" />
+            android:hint="@string/option4" />
 
 
 
         <EditText
             android:id="@+id/mOption5"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_options_background"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+
+            android:maxLength="50"
             android:ems="10"
-            android:hint="option 5" />
+            android:hint="@string/option5" />
+    <LinearLayout
+        android:id="@+id/notif_5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal">
 
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/notific"/>
+        <TextView
+            android:text="@string/notification5"
+            android:textSize="12sp"
+            android:textColor="@color/app_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+    </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/notif_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/notific"/>
+        <TextView
+            android:text="@string/notification4"
+            android:textSize="12sp"
+            android:textColor="@color/app_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/notif_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/notific"/>
+        <TextView
+            android:text="@string/notification3"
+            android:textSize="12sp"
+            android:textColor="@color/app_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+         />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/notif_s"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/notific"/>
+    <TextView
+        android:text="@string/notificationS"
+        android:textSize="12sp"
+        android:textColor="@color/app_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    </LinearLayout>
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/number_wanted"
+    android:textAlignment="center"
+    android:layout_marginTop="20dp"
+    android:textColor="@color/app_color_light"/>
     <EditText
         android:id="@+id/mAnsNbr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="number of answers " />
+        android:inputType="number"
+        android:background="@drawable/create_question_background"
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:layout_gravity="center_horizontal"
+        android:hint="@string/number" />
+
+    <TextView
+        android:id="@+id/notif_0"
+        android:text="@string/notification0"
+        android:textSize="12sp"
+        android:textColor="@color/app_color"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+
     <Button
         android:id="@+id/postB"
+        android:text="@string/go"
+        android:textColor="@color/white"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:background="@color/app_color_light"/>
 </LinearLayout>
     </LinearLayout>
 
@@ -123,11 +259,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:menu="@menu/menu_bottom"
+            android:background="@color/white"
+            app:itemIconTint="@drawable/selector"
+            app:itemTextColor="@drawable/selector"
             android:layout_alignParentBottom="true"
 
             />
     </RelativeLayout>
-
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"

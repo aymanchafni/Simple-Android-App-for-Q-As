@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "851397588675-ogcqlle3gre7o860rrvdqv0orj7i5cd2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ayman.hblik",
+            "certificate_hash": "e002ae3229fea823787bca1ed108d07ce3992875"
+          }
+        },
+        {
           "client_id": "851397588675-gdeltfb2cv8ha0h6lrj54p029vt4h2aa.apps.googleusercontent.com",
           "client_type": 3
         }

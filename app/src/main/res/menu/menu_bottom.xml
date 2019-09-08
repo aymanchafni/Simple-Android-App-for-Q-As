@@ -3,21 +3,26 @@
 
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/ic_menu_camera"
+        android:enabled="true"
+        android:icon="@drawable/home_ic"
         android:title="@string/menu_home" />
+
     <item
         android:id="@+id/nav_answer"
-        android:icon="@drawable/ic_menu_camera"
+        android:enabled="true"
+        android:icon="@drawable/ansic"
         android:title="Answer" />
+
     <item
         android:id="@+id/nav_ask"
-        android:icon="@drawable/ic_menu_camera"
+        android:enabled="true"
+        android:icon="@drawable/askic"
         android:title="Ask" />
 
     <item
         android:id="@+id/MyQuestions"
-        android:icon="@drawable/ic_menu_camera"
-
+        android:icon="@drawable/myqic"
+        android:enabled="true"
         android:title="My Questions"
         />
 

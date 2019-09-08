@@ -13,12 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
@@ -28,7 +22,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private ArrayList<String> ids;
     private Context context;
 
-    public RecyclerViewAdapter(Context context, ArrayList<String> questions, ArrayList<String> answerNbrs, ArrayList<String> ids) {
+    RecyclerViewAdapter(Context context, ArrayList<String> questions, ArrayList<String> answerNbrs, ArrayList<String> ids) {
         this.questions = questions;
         this.answerNbrs = answerNbrs;
         this.context = context;
@@ -41,8 +35,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Log.d(TAG, "onCreateViewHolder: called.");
        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user_activity, parent,false);
-       ViewHolder holder=new ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -50,7 +43,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         Log.d(TAG, "onBindViewHolder: called.");
 
         holder.questionI.setText(questions.get(position));
-        holder.answerNbr.setText("Number of answers  :" + answerNbrs.get(position));
+        holder.answerNbr.setText(context.getResources().getString(R.string.number_answers,answerNbrs.get(position)));
         holder.item_user_activity.setOnClickListener(new View.OnClickListener() {
         int id=Integer.parseInt(ids.get(position));
 
@@ -79,10 +72,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return questions.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder{
         TextView questionI,answerNbr;
         LinearLayout item_user_activity;
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             questionI=itemView.findViewById(R.id.questionI);
             answerNbr=itemView.findViewById(R.id.answerNbr);

@@ -1,112 +1,217 @@
 <resources>
     <string name="app_name" translatable="false">HBLIK</string>
+    <string name="sign_up">Sign-Up</string>
+    <string name="sign_in">Sign-In</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="birthday">Birth date</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="choose_photo">Set profile photo</string>
+    <string name="submit">Submit</string>
+    <string name="score">Score : %d</string>
+    <string name="score_home">Score\n%d</string>
+    <string name="score_before_load">Score\n</string>
+    <string name="number_answers">Number of answers : %s</string>
+    <string name="ask_question">Ask a question</string>
+    <string name="option1">option 1 *</string>
+    <string name="option2">option 2 *</string>
+    <string name="option3">option 3</string>
+    <string name="option4">option 4</string>
+    <string name="option5">option 5</string>
+    <string name="number_wanted">Number of answers</string>
+    <string name="number">Number</string>
 
-    <string name="title_activity_loading" translatable="false">LoadingActivity</string>
-    <string name="dummy_button" translatable="false">Dummy Button</string>
-    <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
-    <string name="title_activity_navigation">NavigationActivity</string>
+    <string name="text_help">You need some help !\n Well, figure it out you dumb ass !\n Yet bed any for travelling assistance indulgence unpleasing. Not thoughts all exercise blessing. Indulgence way everything joy alteration boisterous the attachment. Party we years to order allow asked of. We so opinion friends me message as delight. Whole front do of plate heard oh ought. His defective nor convinced residence own. Connection has put impossible own apartments boisterous. At jointure ladyship an insisted so humanity he. Friendly bachelor entrance to on by. </string>
+
+
+    <string name="name">%s %s</string>
+
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
-    <string name="title_activity_scrolling">ScrollingActivity</string>
-    <string name="large_text">
-        "Material is the metaphor.\n\n"
+    <string name="go">GO</string>
 
-        "A material metaphor is the unifying theory of a rationalized space and a system of motion."
-        "The material is grounded in tactile reality, inspired by the study of paper and ink, yet "
-        "technologically advanced and open to imagination and magic.\n"
-        "Surfaces and edges of the material provide visual cues that are grounded in reality. The "
-        "use of familiar tactile attributes helps users quickly understand affordances. Yet the "
-        "flexibility of the material creates new affordances that supercede those in the physical "
-        "world, without breaking the rules of physics.\n"
-        "The fundamentals of light, surface, and movement are key to conveying how objects move, "
-        "interact, and exist in space and in relation to each other. Realistic lighting shows "
-        "seams, divides space, and indicates moving parts.\n\n"
+    <string name="notification5">To unlock one more option, you should have at least 350 points</string>
+    <string name="notification4">To unlock one more option, you should have at least 250 points</string>
+    <string name="notification3">To unlock one more option, you should have at least 150 points</string>
+    <string name="notificationS">Extra option for 100 points</string>
+    <string name="notification0">GO</string>
+    <string name="facebook_app_id">2251794794949582</string>
+    <string name="fb_login_protocol_scheme">fb2251794794949582</string>
 
-        "Bold, graphic, intentional.\n\n"
 
-        "The foundational elements of print based design typography, grids, space, scale, color, "
-        "and use of imagery guide visual treatments. These elements do far more than please the "
-        "eye. They create hierarchy, meaning, and focus. Deliberate color choices, edge to edge "
-        "imagery, large scale typography, and intentional white space create a bold and graphic "
-        "interface that immerse the user in the experience.\n"
-        "An emphasis on user actions makes core functionality immediately apparent and provides "
-        "waypoints for the user.\n\n"
+    <string-array name="days_array">
+        <item>01</item>
+        <item>02</item>
+        <item>03</item>
+        <item>04</item>
+        <item>05</item>
+        <item>06</item>
+        <item>07</item>
+        <item>08</item>
+        <item>09</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>26</item>
+        <item>27</item>
+        <item>28</item>
+        <item>29</item>
+        <item>30</item>
+        <item>31</item>
+    </string-array>
+    <string-array name="months_array">
+        <item name='january'>January</item>
+        <item name='february'>February</item>
+        <item name='march'>March</item>
+        <item name='april'>April</item>
+        <item name='may'>May</item>
+        <item name='june'>June</item>
+        <item name='july'>July</item>
+        <item name='august'>August</item>
+        <item name='september'>September</item>
+        <item name='october'>October</item>
+        <item name='november'>November</item>
+        <item name='december'>December</item>
+    </string-array>
 
-        "Motion provides meaning.\n\n"
+    <string-array name="years_array">
+        <item>2018</item>
+        <item>2017</item>
+        <item>2016</item>
+        <item>2015</item>
+        <item>2014</item>
+        <item>2013</item>
+        <item>2012</item>
+        <item>2011</item>
+        <item>2010</item>
+        <item>2009</item>
+        <item>2008</item>
+        <item>2007</item>
+        <item>2006</item>
+        <item>2005</item>
+        <item>2004</item>
+        <item>2003</item>
+        <item>2002</item>
+        <item>2001</item>
+        <item>2000</item>
+        <item>1999</item>
+        <item>1998</item>
+        <item>1997</item>
+        <item>1996</item>
+        <item>1995</item>
+        <item>1994</item>
+        <item>1993</item>
+        <item>1992</item>
+        <item>1991</item>
+        <item>1990</item>
+        <item>1989</item>
+        <item>1988</item>
+        <item>1987</item>
+        <item>1986</item>
+        <item>1985</item>
+        <item>1984</item>
+        <item>1983</item>
+        <item>1982</item>
+        <item>1981</item>
+        <item>1980</item>
+        <item>1979</item>
+        <item>1978</item>
+        <item>1977</item>
+        <item>1976</item>
+        <item>1975</item>
+        <item>1974</item>
+        <item>1973</item>
+        <item>1972</item>
+        <item>1971</item>
+        <item>1970</item>
+        <item>1969</item>
+        <item>1968</item>
+        <item>1967</item>
+        <item>1966</item>
+        <item>1965</item>
+        <item>1964</item>
+        <item>1963</item>
+        <item>1962</item>
+        <item>1961</item>
+        <item>1960</item>
+        <item>1959</item>
+        <item>1958</item>
+        <item>1957</item>
+        <item>1956</item>
+        <item>1955</item>
+        <item>1954</item>
+        <item>1953</item>
+        <item>1952</item>
+        <item>1951</item>
+        <item>1950</item>
+        <item>1949</item>
+        <item>1948</item>
+        <item>1947</item>
+        <item>1946</item>
+        <item>1945</item>
+        <item>1944</item>
+        <item>1943</item>
+        <item>1942</item>
+        <item>1941</item>
+        <item>1940</item>
+        <item>1939</item>
+        <item>1938</item>
+        <item>1937</item>
+        <item>1936</item>
+        <item>1935</item>
+        <item>1934</item>
+        <item>1933</item>
+        <item>1932</item>
+        <item>1931</item>
+        <item>1930</item>
+        <item>1929</item>
+        <item>1928</item>
+        <item>1927</item>
+        <item>1926</item>
+        <item>1925</item>
+        <item>1924</item>
+        <item>1923</item>
+        <item>1922</item>
+        <item>1921</item>
+        <item>1920</item>
+        <item>1919</item>
+        <item>1918</item>
+        <item>1917</item>
+        <item>1916</item>
+        <item>1915</item>
+        <item>1914</item>
+        <item>1913</item>
+        <item>1912</item>
+        <item>1911</item>
+        <item>1910</item>
+        <item>1909</item>
+        <item>1908</item>
+        <item>1907</item>
+        <item>1906</item>
+        <item>1905</item>
 
-        "Motion respects and reinforces the user as the prime mover. Primary user actions are "
-        "inflection points that initiate motion, transforming the whole design.\n"
-        "All action takes place in a single environment. Objects are presented to the user without "
-        "breaking the continuity of experience even as they transform and reorganize.\n"
-        "Motion is meaningful and appropriate, serving to focus attention and maintain continuity. "
-        "Feedback is subtle yet clear. Transitions are efﬁcient yet coherent.\n\n"
-
-        "3D world.\n\n"
-
-        "The material environment is a 3D space, which means all objects have x, y, and z "
-        "dimensions. The z-axis is perpendicularly aligned to the plane of the display, with the "
-        "positive z-axis extending towards the viewer. Every sheet of material occupies a single "
-        "position along the z-axis and has a standard 1dp thickness.\n"
-        "On the web, the z-axis is used for layering and not for perspective. The 3D world is "
-        "emulated by manipulating the y-axis.\n\n"
-
-        "Light and shadow.\n\n"
-
-        "Within the material environment, virtual lights illuminate the scene. Key lights create "
-        "directional shadows, while ambient light creates soft shadows from all angles.\n"
-        "Shadows in the material environment are cast by these two light sources. In Android "
-        "development, shadows occur when light sources are blocked by sheets of material at "
-        "various positions along the z-axis. On the web, shadows are depicted by manipulating the "
-        "y-axis only. The following example shows the card with a height of 6dp.\n\n"
-
-        "Resting elevation.\n\n"
-
-        "All material objects, regardless of size, have a resting elevation, or default elevation "
-        "that does not change. If an object changes elevation, it should return to its resting "
-        "elevation as soon as possible.\n\n"
-
-        "Component elevations.\n\n"
-
-        "The resting elevation for a component type is consistent across apps (e.g., FAB elevation "
-        "does not vary from 6dp in one app to 16dp in another app).\n"
-        "Components may have different resting elevations across platforms, depending on the depth "
-        "of the environment (e.g., TV has a greater depth than mobile or desktop).\n\n"
-
-        "Responsive elevation and dynamic elevation offsets.\n\n"
-
-        "Some component types have responsive elevation, meaning they change elevation in response "
-        "to user input (e.g., normal, focused, and pressed) or system events. These elevation "
-        "changes are consistently implemented using dynamic elevation offsets.\n"
-        "Dynamic elevation offsets are the goal elevation that a component moves towards, relative "
-        "to the component’s resting state. They ensure that elevation changes are consistent "
-        "across actions and component types. For example, all components that lift on press have "
-        "the same elevation change relative to their resting elevation.\n"
-        "Once the input event is completed or cancelled, the component will return to its resting "
-        "elevation.\n\n"
-
-        "Avoiding elevation interference.\n\n"
-
-        "Components with responsive elevations may encounter other components as they move between "
-        "their resting elevations and dynamic elevation offsets. Because material cannot pass "
-        "through other material, components avoid interfering with one another any number of ways, "
-        "whether on a per component basis or using the entire app layout.\n"
-        "On a component level, components can move or be removed before they cause interference. "
-        "For example, a floating action button (FAB) can disappear or move off screen before a "
-        "user picks up a card, or it can move if a snackbar appears.\n"
-        "On the layout level, design your app layout to minimize opportunities for interference. "
-        "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
-        "when a user tries to pick up one of cards.\n\n"
-    </string>
-    <string name="title_activity_user_activity">UserActivityActivity</string>
+    </string-array>
 </resources>
+
+

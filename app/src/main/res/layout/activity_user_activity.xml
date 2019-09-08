@@ -17,33 +17,51 @@
 
 
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+        android:orientation="vertical"
     tools:context=".UserActivityActivity">
 
         <TextView
             android:id="@+id/score"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
+            android:textColor="@color/white"
             android:textAlignment="center" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/recyclerview"
-        android:paddingTop="50dp"
+        android:paddingTop="35dp"
+        android:paddingBottom="56dp"
         />
-</RelativeLayout>
+
+</LinearLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_nav_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
+            app:itemIconTint="@drawable/selector"
+            app:itemTextColor="@drawable/selector"
+            android:background="@color/white"
+            app:menu="@menu/menu_bottom" />
+    </RelativeLayout>
+
 
 
 

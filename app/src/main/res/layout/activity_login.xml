@@ -5,31 +5,26 @@
     android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/backg_login"
+    android:background="@drawable/login_background"
     android:orientation="vertical"
-    android:paddingRight="80dp"
-    android:paddingEnd="80dp"
-    android:paddingLeft="80dp"
-    android:paddingStart="80dp"
+    android:paddingEnd="70dp"
+    android:paddingStart="70dp"
+    android:paddingTop="50dp"
+    android:paddingBottom="100dp"
     tools:context=".LoginActivity">
 
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
+
 
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/logoflogin" />
+        android:paddingBottom="20dp"
+        app:srcCompat="@drawable/logofregister" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.5" />
+
 
 
     <com.google.android.material.textfield.TextInputLayout
@@ -44,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Email"
+            android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:textColor="#ffffff" />
 
@@ -58,6 +53,7 @@
         android:textColorHint="#26A2D7FF"
         app:errorEnabled="true"
         app:passwordToggleEnabled="true"
+        android:paddingBottom="20dp"
 
         >
 
@@ -66,79 +62,53 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Password"
+            android:hint="@string/password"
             android:inputType="textPassword"
             android:textColor="#ffffff" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.5" />
 
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.5" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
 
             <Button
                 android:id="@+id/login"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Sign-In" />
+                android:background="@drawable/button_background"
+                android:layout_marginBottom="20dp"
+                android:text="@string/sign_in"
+                android:textColor="@color/app_color"/>
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
 
-            <Button
+
+            <TextView
                 android:id="@+id/register"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Sign-Up" />
-        </LinearLayout>
-    </LinearLayout>
+                android:layout_marginBottom="30dp"
+                android:textColor="@color/white"
+                android:background="@drawable/signup_backg"
+                android:gravity="center"
+                android:textSize="17sp"
+                android:text="@string/sign_up" />
 
-    <Button
+
+    <com.google.android.gms.common.SignInButton
         android:id="@+id/googleSignIn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="SignIn with google" />
-
-    <Space
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="3" />
+        android:layout_marginBottom="10dp"
+       />
 
-    <TextView
-        android:id="@+id/textView3"
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/facebookSignIn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textAlignment="center"
-        android:text="© CHAFNI-BAGHROUS"
-        android:textColor="#ffffff"/>
+
+         />
+
 
 
 </LinearLayout>

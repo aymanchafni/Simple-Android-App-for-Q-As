@@ -14,11 +14,11 @@
             android:title="Settings" />
         <item
             android:id="@+id/nav_help"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/helpic"
             android:title="Help" />
         <item
             android:id="@+id/nav_report"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/reportic"
             android:title="Report" />
 
     </group>
@@ -31,13 +31,13 @@
                 android:title="@string/menu_share" />
             <item
                 android:id="@+id/nav_rate_us"
-                android:icon="@drawable/ic_menu_camera"
+                android:icon="@drawable/rateic"
                 android:title="Rate Us" />
         </menu>
     </item>
     <item
         android:id="@+id/nav_log_out"
-        android:icon="@drawable/ic_menu_camera"
+        android:icon="@drawable/logout"
         android:title="Log Out" />
 
 </menu>

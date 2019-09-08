@@ -1,12 +1,19 @@
 package com.ayman.hblik;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -15,20 +22,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,11 +37,9 @@ import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -52,11 +49,12 @@ public class CreateQuestionActivity extends AppCompatActivity {
    EditText mQuestion,mOption3,mOption4,mOption5, mOption1,mOption2,mAnsNbr;
    String id_questioner;
     TextView mName,mScore;
+    LinearLayout mNotif_s,mNotif_3,mNotif_4,mNotif_5,mNotif_0;
     CircleImageView imageView;
     int score;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
-    private static final String TAG = "CreateQuestionActivity";;
+    private static final String TAG = "CreateQuestionActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +82,15 @@ public class CreateQuestionActivity extends AppCompatActivity {
         View v = navigationView.getHeaderView(0);
         mName = v.findViewById(R.id.name);
         mScore = findViewById(R.id.score);
-        mName.setText(firstName+" "+lastName);
-        mScore.setText("score : "+score);
+        mName.setText(getResources().getString(R.string.name,firstName,lastName));
+
+        mScore.setText(getResources().getString(R.string.score,score));
+
+        mNotif_s=findViewById(R.id.notif_s);
+        mNotif_3=findViewById(R.id.notif_3);
+        mNotif_4=findViewById(R.id.notif_4);
+        mNotif_5=findViewById(R.id.notif_5);
+
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -94,17 +99,31 @@ public class CreateQuestionActivity extends AppCompatActivity {
 
                 switch (id) {
                     case R.id.nav_settings:
-
+                        Intent i =new Intent(CreateQuestionActivity.this,SettingsActivity.class);
+                        startActivity(i);
                         return true;
                     case R.id.nav_help:
+                        Intent j =new Intent(CreateQuestionActivity.this,HelpActivity.class);
+                        startActivity(j);
                         return true;
                     case R.id.nav_report:
+                        Intent k =new Intent(CreateQuestionActivity.this,ReportActivity.class);
+                        startActivity(k);
                         return true;
                     case R.id.nav_share:
                         return true;
                     case R.id.nav_rate_us:
                         return true;
                     case R.id.nav_log_out:
+                        SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
+                        preferences.edit().clear().apply();
+                        Intent intent =new Intent(CreateQuestionActivity.this,LoginActivity.class);
+                        FirebaseAuth mAuth;
+                        mAuth= FirebaseAuth.getInstance();
+                        mAuth.signOut();
+                        LoginManager.getInstance().logOut();
+                        startActivity(intent);
+                        finish();
                         return true;
                 }
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -113,7 +132,7 @@ public class CreateQuestionActivity extends AppCompatActivity {
             }
         });
 
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
+        final BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
 
@@ -121,21 +140,23 @@ public class CreateQuestionActivity extends AppCompatActivity {
                 int id=menuItem.getItemId();
                 switch (id) {
                     case R.id.nav_home:
-
-                        return true;
+                        Intent h = new Intent(CreateQuestionActivity.this, HomeActivity.class);
+                        startActivity(h);
+                        break;
                     case R.id.nav_answer:
                         Intent j = new Intent(CreateQuestionActivity.this, QuestionsActivity.class);
+
                         startActivity(j);
-                        return true;
+                        break;
                     case R.id.nav_ask:
-                        if (score < 25) {
-                            Toast.makeText(CreateQuestionActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
+                        if (score < 50) {
+                            Toast.makeText(CreateQuestionActivity.this, "You should have at least 50 pts", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent intent = new Intent(CreateQuestionActivity.this, CreateQuestionActivity.class);
                             startActivity(intent);
                         }
 
-                        return true;
+                        break;
                     case R.id.MyQuestions:
                         Log.d("e", "onNavigationItemSelected: starting userA");
                         Intent i = new Intent(CreateQuestionActivity.this, UserActivityActivity.class);
@@ -143,11 +164,13 @@ public class CreateQuestionActivity extends AppCompatActivity {
                         b.putString("id_user", id_questioner);
                         i.putExtras(b);
                         startActivity(i);
-                        return true;
+                        break;
                 }
-                return false;
+                return true;
             }
         });
+        bottomNavigationView.getMenu().findItem(R.id.nav_home).setChecked(false);
+        bottomNavigationView.getMenu().findItem(R.id.nav_ask).setChecked(true);
 
         setProfilePhoto(id_questioner);
 
@@ -171,8 +194,44 @@ public class CreateQuestionActivity extends AppCompatActivity {
         });
 
 
+        if(score<150){
+            mOption3.setVisibility(View.GONE);
+            mOption4.setVisibility(View.GONE);
+            mOption5.setVisibility(View.GONE);
+
+            mNotif_s.setVisibility(View.VISIBLE);
+            mNotif_3.setVisibility(View.VISIBLE);
+        }
+
+        else if(score<250){
+            mOption4.setVisibility(View.GONE);
+            mOption5.setVisibility(View.GONE);
+
+            mNotif_s.setVisibility(View.VISIBLE);
+            mNotif_4.setVisibility(View.VISIBLE);
+
+        }
+
+        else if(score<350){
+            mOption5.setVisibility(View.GONE);
+
+            mNotif_s.setVisibility(View.VISIBLE);
+            mNotif_5.setVisibility(View.VISIBLE);
+
+        }
+
+
+
+
 
     }
+
+    @Override
+    public void onBackPressed(){
+        Intent i = new Intent(this,HomeActivity.class);
+        startActivity(i);
+    }
+
     private void setProfilePhoto(String id){
         FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -229,22 +288,53 @@ public class CreateQuestionActivity extends AppCompatActivity {
         option4=mOption4.getText().toString();
         option5=mOption5.getText().toString();
 
-        final int scorev = score - 10*AnsNbr;
-        if(scorev<0){
-            Toast.makeText(this, "You don't have enough score ! ", Toast.LENGTH_SHORT).show();
+
+
+        if(score>=350){
+            if(!option3.equals("")){
+                score=score-100;
+            }
+            if(!option4.equals("")){
+                score=score-100;
+            }
+            if(!option5.equals("")){
+                score=score-100;
+            }
+        }
+
+
+        else if(score>=250){
+            if(!option3.equals("")){
+                score=score-100;
+            }
+            if(!option4.equals("")){
+                score=score-100;
+            }
+        }
+
+        else if(score>=150){
+            if(!option3.equals("")){
+                score=score-100;
+            }
+        }
+
+
+
+
+        final int calculated_score = score - 50*AnsNbr;
+        if(calculated_score<0){
+            Toast.makeText(this, "You don't have enough score !\n1 answer for 50 points ", Toast.LENGTH_SHORT).show();
             mAnsNbr.setError("Decrease the number of answers");
-            return;
         }
 else{
         final DocumentReference sfDocRef = db.collection("questions").document("qXGHFFXNNANcUr2P0fEm");
 
-
         db.runTransaction(new Transaction.Function<Void>() {
             @Override
-            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
 
                 DocumentSnapshot snapshot = transaction.get(sfDocRef);
-                int count_id=snapshot.getLong("count_id").intValue();
+                int count_id= Objects.requireNonNull(snapshot.getLong("count_id")).intValue();
 
                 data.put("id",count_id);
 
@@ -289,13 +379,13 @@ else{
 
                 final DocumentReference sfDocRef2 = db.collection("userh").document(id_questioner);
                 final WriteBatch batch = db.batch();
-                batch.update(sfDocRef2, "score", scorev);
+                batch.update(sfDocRef2, "score", calculated_score);
 
 
 
                 preferences=getSharedPreferences("userPreferences",0);
                 editor=preferences.edit();
-                editor.putInt("score",scorev);
+                editor.putInt("score",calculated_score);
                 editor.apply();
 
                 Intent i =new Intent(CreateQuestionActivity.this, UserActivityActivity.class);
