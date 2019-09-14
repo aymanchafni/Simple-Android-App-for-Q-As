@@ -131,7 +131,7 @@ public class CreateQuestionActivity extends AppCompatActivity {
                 return true;
             }
         });
-
+  
         final BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override

@@ -45,6 +45,7 @@
     <string name="notification0">GO</string>
     <string name="facebook_app_id">2251794794949582</string>
     <string name="fb_login_protocol_scheme">fb2251794794949582</string>
+    <string name="email_sent">An email has been sent to you.\nPlease check your email box to verify tour email</string>
 
 
     <string-array name="days_array">

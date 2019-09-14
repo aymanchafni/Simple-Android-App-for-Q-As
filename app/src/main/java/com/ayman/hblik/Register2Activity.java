@@ -16,13 +16,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -51,6 +56,7 @@ public class Register2Activity extends AppCompatActivity {
     Bitmap profile;
     private String id_user;
     private static final String TAG = "Register2Activity";
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,8 +197,17 @@ public class Register2Activity extends AppCompatActivity {
         String fName = b.getString("first_name");
         String lName = b.getString("last_name");
         String birthday=b.getString("birthday");
-        String email = Objects.requireNonNull(mEmail.getEditText()).getText().toString().trim();
+        final String email = Objects.requireNonNull(mEmail.getEditText()).getText().toString().trim();
         String password = Objects.requireNonNull(mPassword.getEditText()).getText().toString().trim();
+
+        Bundle b1=new Bundle();
+        b1.putString("fName",fName);
+        b1.putString("lName",lName);
+        b1.putString("birthday",birthday);
+        b1.putString("email",email);
+        //todo : verify if the email exist in the database
+        //todo make the profile photo unnecessary
+        b1.putString("password",password);
 
         user.put("firstName", fName);
         user.put("lastName", lName);
@@ -214,6 +229,8 @@ public class Register2Activity extends AppCompatActivity {
                         id_user= documentReference.getId();
                         savePhotoInFirebase(profile);
 
+
+
                     }
                 })
 
@@ -224,9 +241,25 @@ public class Register2Activity extends AppCompatActivity {
                     }
                 });
 
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful() && mAuth.getCurrentUser()!=null) {
+                    Log.d(TAG, "signInAnonymously:success");
 
+                    mAuth.getCurrentUser().updateEmail(email);
+                    mAuth.getCurrentUser().sendEmailVerification();
+                    Log.d(TAG, "mail sent.....................................");
+                }
+                else{
+                    Toast.makeText(Register2Activity.this, "Unexpected problem..Please try again.", Toast.LENGTH_SHORT).show();
 
-        Intent i =new Intent(this,LoginActivity.class);
+                }
+            }
+        });
+
+        Intent i =new Intent(this,EmailVerificationActivity.class);
         startActivity(i);
 
 
