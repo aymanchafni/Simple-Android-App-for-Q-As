@@ -10,34 +10,31 @@
 
         <item
             android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Settings" />
+            android:icon="@drawable/settings_ic"
+            android:title="@string/settings" />
         <item
             android:id="@+id/nav_help"
-            android:icon="@drawable/helpic"
-            android:title="Help" />
-        <item
-            android:id="@+id/nav_report"
-            android:icon="@drawable/reportic"
-            android:title="Report" />
+            android:icon="@drawable/help_ic"
+            android:title="@string/help" />
+       
 
     </group>
 
-    <item android:title="Communicate">
-        <menu>
+
+        <group>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
                 android:title="@string/menu_share" />
             <item
                 android:id="@+id/nav_rate_us"
-                android:icon="@drawable/rateic"
+                android:icon="@drawable/rate_ic"
                 android:title="Rate Us" />
-        </menu>
-    </item>
+        </group>
+
     <item
         android:id="@+id/nav_log_out"
-        android:icon="@drawable/logout"
-        android:title="Log Out" />
+        android:icon="@drawable/logout_ic_big"
+        android:title="@string/exit" />
 
 </menu>

@@ -8,9 +8,12 @@
     tools:context=".Register2Activity"
     android:paddingTop="100dp"
     android:paddingEnd="50dp"
-    android:paddingStart="50dp"
+    android:paddingStart="50dp">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_register2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
-    >
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -106,7 +109,7 @@
             android:id="@+id/chooseProfilePhotoB"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/attachic" />
+            android:src="@drawable/attach_ic" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profilePhotoRegister"

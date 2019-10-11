@@ -9,6 +9,10 @@
     android:paddingStart="40dp"
     android:paddingTop="100dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <ImageView
         android:id="@+id/imageView2"
@@ -105,7 +109,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:src="@drawable/dropic"/>
+        android:src="@drawable/drop_ic"/>
 
 </LinearLayout>
 
@@ -140,7 +144,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/dropic"
+            android:src="@drawable/drop_ic"
             android:layout_gravity="center"
             />
 
@@ -151,7 +155,7 @@
         android:id="@+id/next_register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/goic"
+        android:src="@drawable/go_ic"
         android:layout_gravity="end"
         android:padding="15dp"/>
 

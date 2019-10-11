@@ -1,9 +1,12 @@
 package com.ayman.hblik;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +55,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -71,8 +76,8 @@ import java.util.Objects;
 
 
 public class LoginActivity extends AppCompatActivity {
+    ProgressBar progress;
     AccessToken accessToken;
-    Bitmap bitmap;
     FirebaseFirestore db;
     TextInputLayout mEmail, mPassword;
     Button login;
@@ -104,6 +109,8 @@ public class LoginActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
+
+        progress=findViewById(R.id.progress);
         mEmail = findViewById(R.id.emailIn);
         eEmail = findViewById(R.id.eEmail);
         mPassword = findViewById(R.id.passwordIn);
@@ -159,8 +166,8 @@ public class LoginActivity extends AppCompatActivity {
 
         // [START initialize_fblogin]
         // Initialize Facebook Login button
-        mCallbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = findViewById(R.id.facebookSignIn);
+        mCallbackManager = CallbackManager.Factory.create();
         loginButton.setReadPermissions("email", "public_profile");
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -208,13 +215,21 @@ public class LoginActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (FacebookSdk.isFacebookRequestCode(requestCode)) {
+        if(!ConnectivityHelper.isConnectedToNetwork(this)){
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            progress.setVisibility(View.GONE);
+        }
+
+        else if (FacebookSdk.isFacebookRequestCode(requestCode)) {
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
         fbLogin();
         }
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
+        else if (requestCode == RC_SIGN_IN) {
+
+
+            // todo handle the error of not being connected to internet everywhere
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
@@ -323,6 +338,7 @@ public class LoginActivity extends AppCompatActivity {
                     assert photo_google_uri != null;
                     SignInGoogleFb(email,null,photo_google_uri.toString(),false);
 
+
                 }
             }
         });
@@ -330,71 +346,11 @@ public class LoginActivity extends AppCompatActivity {
         //hideProgressDialog();
     }
 
-    public Bitmap getThumbnail(Uri uri) throws FileNotFoundException, IOException {
-        double THUMBNAIL_SIZE = 1000;
-        InputStream input = this.getContentResolver().openInputStream(uri);
-
-        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
-        onlyBoundsOptions.inJustDecodeBounds = true;
-        onlyBoundsOptions.inDither = true;//optional
-        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
-        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
-        assert input != null;
-        input.close();
-        if ((onlyBoundsOptions.outWidth == -1) || (onlyBoundsOptions.outHeight == -1))
-            return null;
-
-        int originalSize = (onlyBoundsOptions.outHeight > onlyBoundsOptions.outWidth) ? onlyBoundsOptions.outHeight : onlyBoundsOptions.outWidth;
-
-        double ratio = (originalSize > THUMBNAIL_SIZE) ? (originalSize / THUMBNAIL_SIZE) : 1.0;
-
-        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-        bitmapOptions.inSampleSize = getPowerOfTwoForSampleRatio(ratio);
-        bitmapOptions.inDither = true;//optional
-        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
-        input = this.getContentResolver().openInputStream(uri);
-        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
-        assert input != null;
-        input.close();
-        return bitmap;
-    }
-
-    private static int getPowerOfTwoForSampleRatio(double ratio) {
-        int k = Integer.highestOneBit((int) Math.floor(ratio));
-        if (k == 0) return 1;
-        else return k;
-    }
-
-    private void savePhotoInFirebase(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] data = baos.toByteArray();
-
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-
-        StorageReference mountainsRef = storageRef.child("profilePhotos/" + id_user + ".png");
-
-        UploadTask uploadTask = mountainsRef.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-            }
-        }).addOnSuccessListener(
-                new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
-            }
-        });
-    }
-
 
     // [END auth_with_google]
 
     private void googleSignIn() {
+        progress.setVisibility(View.VISIBLE);
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -408,10 +364,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onLogin() {
 
-
+        progress.setVisibility(View.VISIBLE);
         String email = Objects.requireNonNull(mEmail.getEditText()).getText().toString().trim();
         String password = Objects.requireNonNull(mPassword.getEditText()).getText().toString().trim();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("userh")
                 .whereEqualTo("email", email)
@@ -425,16 +381,44 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             if (Objects.requireNonNull(task.getResult()).isEmpty()) {
                                 Toast.makeText(LoginActivity.this, "email or password incorrect", Toast.LENGTH_SHORT).show();
-                            } else {
+                            }
+
+                            else {
+
+
 
 
                                 Intent i = new Intent(getApplicationContext(), HomeActivity.class);
 
 
                                 for (QueryDocumentSnapshot document : task.getResult()) {
+                                    boolean verified=Objects.requireNonNull(document.getBoolean("verified"));
+                                    id_user = document.getId();
+                                    if(!verified){
+                                        if(!Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified())
+                                        {
+                                            Toast.makeText(LoginActivity.this, "Please verify your email", Toast.LENGTH_SHORT).show();
+                                            TextView tv=findViewById(R.id.send_another_verification);
+                                            tv.setVisibility(View.VISIBLE);
+                                            tv.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    mAuth.getCurrentUser().sendEmailVerification();
+                                                    Toast.makeText(LoginActivity.this, "we have sent to you another verification email !", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+
+                                            return;
+                                        }
+                                        else{
+                                            WriteBatch batch = db.batch();
+                                            DocumentReference sfRef = db.collection("userh").document(id_user);
+                                            batch.update(sfRef, "verified", true);
+                                            batch.commit();
+                                        }
+                                    }
                                     firstName = document.getString("firstName");
                                     lastName = document.getString("lastName");
-                                    id_user = document.getId();
                                     score = Objects.requireNonNull(document.getLong("score")).intValue();
                                     id_last_question = Objects.requireNonNull(document.getLong("id_last_question")).intValue();
 
@@ -519,7 +503,7 @@ public class LoginActivity extends AppCompatActivity {
                                             } catch (IOException e) {
                                                 e.printStackTrace();
                                                 Log.d(TAG, "onComplete: " + e);
-                                                Log.d(TAG, "onComplete: " + uri.toString());
+                                                Log.d(TAG, "onComplete: " + uri);
                                             }
                                             Intent i = new Intent(LoginActivity.this, HomeActivity.class);
                                             startActivity(i);
@@ -645,6 +629,22 @@ if(uri==null)
 
         //progress dialog
 
+    }
+
+
+    public static class ConnectivityHelper {
+        public static boolean isConnectedToNetwork(Context context) {
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            boolean isConnected = false;
+            if (connectivityManager != null) {
+                NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+                isConnected = (activeNetwork != null) && (activeNetwork.isConnectedOrConnecting());
+            }
+
+            return isConnected;
+        }
     }
 }
 

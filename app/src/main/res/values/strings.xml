@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name" translatable="false">HBLIK</string>
+    <string name="my_activity">My Activity</string>
+    <string name="question_stats">Question Stats</string>
+    <string name="email_verification">Email Verification</string>
+    <string name="create_question">Create a new question</string>
+
+<string name="rate_us_message">Did you like our app ?\nGive us 5 stars now</string>
     <string name="sign_up">Sign-Up</string>
     <string name="sign_in">Sign-In</string>
     <string name="email">Email</string>
@@ -11,8 +17,7 @@
     <string name="choose_photo">Set profile photo</string>
     <string name="submit">Submit</string>
     <string name="score">Score : %d</string>
-    <string name="score_home">Score\n%d</string>
-    <string name="score_before_load">Score\n</string>
+    <string name="score_home">  %d</string>
     <string name="number_answers">Number of answers : %s</string>
     <string name="ask_question">Ask a question</string>
     <string name="option1">option 1 *</string>
@@ -46,7 +51,22 @@
     <string name="facebook_app_id">2251794794949582</string>
     <string name="fb_login_protocol_scheme">fb2251794794949582</string>
     <string name="email_sent">An email has been sent to you.\nPlease check your email box to verify tour email</string>
-
+    <string name="ask">Ask</string>
+    <string name="answer">Answer</string>
+    <string name="myq">My questions</string>
+    <string name="stats">My stats</string>
+    <string name="exit">Log out</string>
+    <string name="settings">Settings</string>
+    <string name="help">Help</string>
+    <string name="report">Report</string>
+    <string name="rate">Rate us</string>
+    <string name="change_pass">Change your password</string>
+    <string name="current_pass">enter your current password :</string>
+    <string name="new_pass">enter the new password :</string>
+    <string name="new_photo">choose a new profile photo</string>
+    <string name="save_changes">save changes</string>
+    <string name="change_photo">change profile photo</string>
+    <string name="send_again_verification_email" >didn\'t recieve verification email yet ?\n <u>Send another email</u></string>
 
     <string-array name="days_array">
         <item>01</item>

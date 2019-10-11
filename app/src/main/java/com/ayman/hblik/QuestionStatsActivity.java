@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -45,8 +46,6 @@ public class QuestionStatsActivity extends AppCompatActivity {
     int option1, option2,option3, option4, option5,id_question,answerNbr,score;
     TextView mQuestion,mOption1,mOption2,mOption3,mOption4,mOption5,bar1,bar2,bar3,bar4,bar5,option3_color,option4_color,option5_color;
     private static final String TAG = "QuestionStatsActivity";
-    TextView mName,mScore;
-    CircleImageView imageView;
     LinearLayout stat_3,stat_4,stat_5;
     @SuppressLint("RestrictedApi")
     @Override
@@ -55,28 +54,20 @@ public class QuestionStatsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_question_stats);
         SharedPreferences preferences = getSharedPreferences("userPreferences",MODE_PRIVATE);
         final String id_user=preferences.getString("id_user",null);
-        String firstName =preferences.getString("first_name",null);
-        String lastName =preferences.getString("last_name",null);
+
         score =preferences.getInt("score",0);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar_question_stats);
+        toolbar.setTitle(getResources().getString(R.string.question_stats));
+
         setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-
-        View v0 = navigationView.getHeaderView(0);
-        imageView = v0.findViewById(R.id.profilePhoto);
-        View v = navigationView.getHeaderView(0);
-        mName = v.findViewById(R.id.name);
-        mScore = findViewById(R.id.score);
-        mName.setText(getResources().getString(R.string.name,firstName,lastName));
-        mScore.setText(getResources().getString(R.string.score,score));
+        toolbar.setNavigationIcon(R.drawable.back_ic);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         stat_3=findViewById(R.id.stat_3);
         stat_4=findViewById(R.id.stat_4);
@@ -87,46 +78,6 @@ public class QuestionStatsActivity extends AppCompatActivity {
         option5_color=findViewById(R.id.option5_color);
 
 
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                int id = menuItem.getItemId();
-
-                switch (id) {
-                    case R.id.nav_settings:
-                        Intent i =new Intent(QuestionStatsActivity.this,SettingsActivity.class);
-                        startActivity(i);
-                        return true;
-                    case R.id.nav_help:
-                        Intent j =new Intent(QuestionStatsActivity.this,HelpActivity.class);
-                        startActivity(j);
-                        return true;
-                    case R.id.nav_report:
-                        Intent k =new Intent(QuestionStatsActivity.this,ReportActivity.class);
-                        startActivity(k);
-                        return true;
-                    case R.id.nav_share:
-                        return true;
-                    case R.id.nav_rate_us:
-                        return true;
-                    case R.id.nav_log_out:
-                        SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
-                        preferences.edit().clear().apply();
-                        Intent intent =new Intent(QuestionStatsActivity.this,LoginActivity.class);
-                        FirebaseAuth mAuth;
-                        mAuth= FirebaseAuth.getInstance();
-                        mAuth.signOut();
-                        LoginManager.getInstance().logOut();
-
-                        startActivity(intent);
-                        finish();
-                        return true;
-                }
-                DrawerLayout drawer = findViewById(R.id.drawer_layout);
-                drawer.closeDrawer(GravityCompat.START);
-                return true;
-            }
-        });
 
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
 
@@ -168,7 +119,6 @@ public class QuestionStatsActivity extends AppCompatActivity {
         });
 
 
-        setProfilePhoto(id_user);
 
 
         Bundle b = getIntent().getExtras();
@@ -221,33 +171,8 @@ public class QuestionStatsActivity extends AppCompatActivity {
 
 
 
-    private void setProfilePhoto(String id){
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-
-        // [START download_create_reference]
-        // Create a storage reference from our app
-        StorageReference storageRef = storage.getReference();
-
-        // Create a reference with an initial file path and name
-        StorageReference pathReference = storageRef.child("profilePhotos/"+id+".png");
 
 
-        final long ONE_MEGABYTE = 1024 * 1024;
-        pathReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-// Set the Bitmap data to the ImageView
-                imageView.setImageBitmap(bmp);            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
-            }
-
-        });
-
-    }
 
     private void fillContent() {
         mOption1=findViewById(R.id.option1);

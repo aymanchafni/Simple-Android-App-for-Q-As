@@ -10,20 +10,20 @@
     <item
         android:id="@+id/nav_answer"
         android:enabled="true"
-        android:icon="@drawable/ansic"
-        android:title="Answer" />
+        android:icon="@drawable/answer_ic_big"
+        android:title="@string/answer" />
 
     <item
         android:id="@+id/nav_ask"
         android:enabled="true"
-        android:icon="@drawable/askic"
-        android:title="Ask" />
+        android:icon="@drawable/ask_ic_big"
+        android:title="@string/ask" />
 
     <item
         android:id="@+id/MyQuestions"
-        android:icon="@drawable/myqic"
+        android:icon="@drawable/myq_ic_big"
         android:enabled="true"
-        android:title="My Questions"
+        android:title="@string/myq"
         />
 
 </menu>

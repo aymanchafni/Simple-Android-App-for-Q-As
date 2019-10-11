@@ -2,6 +2,8 @@ package com.ayman.hblik;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -12,6 +14,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -29,11 +32,21 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE); //will hide the title
-        Objects.requireNonNull(getSupportActionBar()).hide(); // hide the title bar
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         setContentView(R.layout.activity_register);
+        Toolbar toolbar = findViewById(R.id.toolbar_register);
+        toolbar.setTitle(getResources().getString(R.string.sign_up));
+
+        setSupportActionBar(toolbar);
+
+        toolbar.setNavigationIcon(R.drawable.back_ic);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         mBirthday=findViewById(R.id.birthday);
         mfName=findViewById(R.id.fName);
@@ -129,6 +142,7 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     }
+
 
 
 private boolean FieldError() {

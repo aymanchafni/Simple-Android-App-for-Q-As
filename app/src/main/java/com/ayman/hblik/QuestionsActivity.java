@@ -82,6 +82,8 @@ public class QuestionsActivity extends AppCompatActivity
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle(getResources().getString(R.string.answer));
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -279,6 +281,7 @@ public class QuestionsActivity extends AppCompatActivity
 
 
         id_last_question+=empty_interval+quest_skipped+1;
+        empty_interval=0;
         quest_skipped=0;
         score+=5;
         mScore.setText(getResources().getString(R.string.score,score));
@@ -351,7 +354,7 @@ public class QuestionsActivity extends AppCompatActivity
                                 }
 
                                 int current_quest_id= Objects.requireNonNull(document.getLong("id")).intValue();
-                               empty_interval=current_quest_id-id_last_question;
+                                empty_interval=current_quest_id-id_last_question;
 
                                 question=document.getString("question");
                                 option1=document.getString("option1");
@@ -365,6 +368,7 @@ public class QuestionsActivity extends AppCompatActivity
                                 mQuestion.setText(question);
                                 rb1.setText(option1);
                                 rb2.setText(option2);
+
                                 if(option3 != null) {
                                     rb3.setVisibility(View.VISIBLE);
                                     rb3.setText(option3);
@@ -548,13 +552,18 @@ public class QuestionsActivity extends AppCompatActivity
                 Intent j =new Intent(this,HelpActivity.class);
                 startActivity(j);
                 return true;
-            case R.id.nav_report:
-                Intent k =new Intent(this,ReportActivity.class);
-                startActivity(k);
-                return true;
+
             case R.id.nav_share:
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT,
+                        "Hey check out my app at: https://www.play.google.com/Store");
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
                 return true;
             case R.id.nav_rate_us:
+                Intent t = new Intent(QuestionsActivity.this,RateUsActivity.class);
+                startActivity(t);
                 return true;
             case R.id.nav_log_out:
                 SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);

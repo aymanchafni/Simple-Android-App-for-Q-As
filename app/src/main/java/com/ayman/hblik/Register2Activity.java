@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -61,12 +64,18 @@ public class Register2Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE); //will hide the title
-        Objects.requireNonNull(getSupportActionBar()).hide(); // hide the title bar
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_register2);
 
+        setContentView(R.layout.activity_register2);
+        Toolbar toolbar = findViewById(R.id.toolbar_register2);
+        toolbar.setTitle(getResources().getString(R.string.sign_up));
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.back_ic);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         //
         mEmail=findViewById(R.id.emailR);
@@ -141,9 +150,6 @@ public class Register2Activity extends AppCompatActivity {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 profilePhoto.setImageBitmap(bitmap);
                 saveBitmap(bitmap);
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -200,14 +206,7 @@ public class Register2Activity extends AppCompatActivity {
         final String email = Objects.requireNonNull(mEmail.getEditText()).getText().toString().trim();
         String password = Objects.requireNonNull(mPassword.getEditText()).getText().toString().trim();
 
-        Bundle b1=new Bundle();
-        b1.putString("fName",fName);
-        b1.putString("lName",lName);
-        b1.putString("birthday",birthday);
-        b1.putString("email",email);
-        //todo : verify if the email exist in the database
-        //todo make the profile photo unnecessary
-        b1.putString("password",password);
+
 
         user.put("firstName", fName);
         user.put("lastName", lName);
@@ -216,6 +215,8 @@ public class Register2Activity extends AppCompatActivity {
         user.put("password", password);
         user.put("id_last_question",1);
         user.put("score",0);
+        user.put("verified",false);
+
 
 
 
@@ -227,7 +228,8 @@ public class Register2Activity extends AppCompatActivity {
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
                         id_user= documentReference.getId();
-                        savePhotoInFirebase(profile);
+                        if(profile!=null)
+                            savePhotoInFirebase(profile);
 
 
 
@@ -261,7 +263,7 @@ public class Register2Activity extends AppCompatActivity {
 
         Intent i =new Intent(this,EmailVerificationActivity.class);
         startActivity(i);
-
+//todo add user to database even if not verified but add cdt verified to login and add this field to every user registered withe email-pass
 
     }
     private boolean FieldError() {

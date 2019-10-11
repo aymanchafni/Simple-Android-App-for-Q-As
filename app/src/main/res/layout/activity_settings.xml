@@ -1,22 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context=".SettingsActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:titleTextColor="@color/white"
+        android:background="@color/app_color"/>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingStart="20dp"
+        android:paddingBottom="10dp"
+        android:text="@string/change_pass"
+        android:background="@drawable/setting_background"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        tools:ignore="RtlSymmetry"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/current_pass"
+        android:paddingTop="20dp"
+        android:paddingStart="25dp"
+        android:paddingBottom="10dp"
+        android:textSize="15sp"
+        tools:ignore="RtlSymmetry" />
+
+    <EditText
+        android:id="@+id/curr_pass"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/new_pass"
+        android:paddingTop="20dp"
+        android:paddingStart="25dp"
+        android:paddingBottom="10dp"
+        android:textSize="15sp"
+        tools:ignore="RtlSymmetry" />
+
+    <EditText
+        android:id="@+id/new_pass"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"/>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:paddingTop="20dp"
+        android:paddingStart="20dp"
+        android:paddingBottom="10dp"
+        android:text="@string/change_photo"
+        android:background="@drawable/setting_background"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        tools:ignore="RtlSymmetry"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingStart="25dp"
+        android:paddingBottom="40dp"
+        android:orientation="horizontal">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="@string/new_photo"
+        android:textSize="15sp"
+        tools:ignore="RtlSymmetry" />
+    <ImageView
+        android:id="@+id/change_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingStart="20dp"
+        android:src="@drawable/attach_ic"/>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/new_photo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            />
+</LinearLayout>
+
+    <Button
+        android:id="@+id/button_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/save_changes"
+        android:background="@drawable/button_background"/>
+
     <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="94dp"
-        android:layout_height="172dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:id="@+id/progress_settings"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+</ScrollView>

@@ -63,6 +63,7 @@
             android:id="@+id/radioButton1"
             android:button="@drawable/btn_radio"
             android:background="@drawable/layout_border_0"
+            android:layout_marginBottom="5dp"
             android:padding="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,7 +72,8 @@
         <RadioButton
             android:id="@+id/radioButton2"
             android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border"
+            android:background="@drawable/layout_border_0"
+            android:layout_marginBottom="5dp"
             android:padding="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -80,7 +82,8 @@
         <RadioButton
             android:id="@+id/radioButton3"
             android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border"
+            android:background="@drawable/layout_border_0"
+            android:layout_marginBottom="5dp"
             android:padding="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,7 +93,8 @@
         <RadioButton
             android:id="@+id/radioButton4"
             android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border"
+            android:background="@drawable/layout_border_0"
+            android:layout_marginBottom="5dp"
             android:padding="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -102,7 +106,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border"
+            android:background="@drawable/layout_border_0"
+            android:layout_marginBottom="5dp"
             android:padding="20dp"
             android:onClick="onChoice"
             android:visibility="gone" />
@@ -144,8 +149,7 @@
         android:layout_marginEnd="0dp"
         android:layout_marginRight="0dp"
         android:background="@color/white"
-        app:itemIconTint="@drawable/selector"
-        app:itemTextColor="@drawable/selector"
+        app:itemTextColor="@color/app_color"
         app:menu="@menu/menu_bottom" />
 </RelativeLayout>
 

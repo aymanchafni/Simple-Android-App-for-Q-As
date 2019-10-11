@@ -1,8 +1,12 @@
 package com.ayman.hblik;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class HelpActivity extends AppCompatActivity {
 
@@ -10,5 +14,18 @@ public class HelpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
+        Toolbar toolbar = findViewById(R.id.toolbar_help);
+        toolbar.setTitle(getResources().getString(R.string.help));
+
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.back_ic);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
+
+
 }
