@@ -145,8 +145,8 @@ public class QuestionStatsActivity extends AppCompatActivity {
                         startActivity(j);
                         return true;
                     case R.id.nav_ask:
-                        if (score < 50) {
-                            Toast.makeText(QuestionStatsActivity.this, "You should have at least 50 pts", Toast.LENGTH_SHORT).show();
+                        if (score < 25) {
+                            Toast.makeText(QuestionStatsActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent intent = new Intent(QuestionStatsActivity.this, CreateQuestionActivity.class);
                             startActivity(intent);

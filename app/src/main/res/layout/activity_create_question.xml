@@ -20,7 +20,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".CreateQuestionActivity">
+    tools:context=".CreateQuestionActivity"
+        android:paddingBottom="56dp">
 
         <TextView
             android:id="@+id/score"
@@ -246,6 +247,16 @@
         android:layout_margin="10dp"
         android:padding="10dp"
         android:background="@color/app_color_light"/>
+
+    <TextView
+        android:id="@+id/goto_help"
+        android:textColor="@color/color_link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/goto_help"
+        android:padding="10dp"
+        android:layout_margin="10dp"/>
+
 </LinearLayout>
     </LinearLayout>
 

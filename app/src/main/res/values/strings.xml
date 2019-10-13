@@ -38,14 +38,15 @@
     <string name="menu_share">Share</string>
     <string name="go">GO</string>
 
-    <string name="notification5">To unlock one more option, you should have at least 350 points</string>
-    <string name="notification4">To unlock one more option, you should have at least 250 points</string>
-    <string name="notification3">To unlock one more option, you should have at least 150 points</string>
-    <string name="notificationS">Extra option for 100 points</string>
+    <string name="notification5">To unlock one more option, you should have at least 85 points</string>
+    <string name="notification4">To unlock one more option, you should have at least 65 points</string>
+    <string name="notification3">To unlock one more option, you should have at least 45 points</string>
+    <string name="notificationS">Each answer is for 5 points</string>
     <string name="notification0">GO</string>
     <string name="facebook_app_id">2251794794949582</string>
     <string name="fb_login_protocol_scheme">fb2251794794949582</string>
     <string name="email_sent">An email has been sent to you.\nPlease check your email box to verify tour email</string>
+    <string name="goto_help"><![CDATA[<u>see help</u>]]></string>
 
 
     <string-array name="days_array">

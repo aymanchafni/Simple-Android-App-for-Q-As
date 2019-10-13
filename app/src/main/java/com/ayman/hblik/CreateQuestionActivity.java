@@ -149,12 +149,6 @@ public class CreateQuestionActivity extends AppCompatActivity {
                         startActivity(j);
                         break;
                     case R.id.nav_ask:
-                        if (score < 50) {
-                            Toast.makeText(CreateQuestionActivity.this, "You should have at least 50 pts", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Intent intent = new Intent(CreateQuestionActivity.this, CreateQuestionActivity.class);
-                            startActivity(intent);
-                        }
 
                         break;
                     case R.id.MyQuestions:
@@ -194,7 +188,7 @@ public class CreateQuestionActivity extends AppCompatActivity {
         });
 
 
-        if(score<150){
+        if(score<45){
             mOption3.setVisibility(View.GONE);
             mOption4.setVisibility(View.GONE);
             mOption5.setVisibility(View.GONE);
@@ -203,7 +197,7 @@ public class CreateQuestionActivity extends AppCompatActivity {
             mNotif_3.setVisibility(View.VISIBLE);
         }
 
-        else if(score<250){
+        else if(score<65){
             mOption4.setVisibility(View.GONE);
             mOption5.setVisibility(View.GONE);
 
@@ -212,17 +206,13 @@ public class CreateQuestionActivity extends AppCompatActivity {
 
         }
 
-        else if(score<350){
+        else if(score<85){
             mOption5.setVisibility(View.GONE);
 
             mNotif_s.setVisibility(View.VISIBLE);
             mNotif_5.setVisibility(View.VISIBLE);
 
         }
-
-
-
-
 
     }
 
@@ -288,45 +278,49 @@ public class CreateQuestionActivity extends AppCompatActivity {
         option4=mOption4.getText().toString();
         option5=mOption5.getText().toString();
 
+        score=score-20;
 
 
-        if(score>=350){
+        if(score>=85){
             if(!option3.equals("")){
-                score=score-100;
+                score=score-20;
             }
             if(!option4.equals("")){
-                score=score-100;
+                score=score-20;
             }
             if(!option5.equals("")){
-                score=score-100;
+                score=score-20;
             }
         }
 
 
-        else if(score>=250){
+        else if(score>=65){
             if(!option3.equals("")){
-                score=score-100;
+                score=score-20;
             }
             if(!option4.equals("")){
-                score=score-100;
+                score=score-20;
             }
         }
 
-        else if(score>=150){
+        else if(score>=45){
             if(!option3.equals("")){
-                score=score-100;
+                score=score-20;
             }
         }
 
 
 
 
-        final int calculated_score = score - 50*AnsNbr;
+        final int calculated_score = score - 5*AnsNbr;
         if(calculated_score<0){
-            Toast.makeText(this, "You don't have enough score !\n1 answer for 50 points ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "You don't have enough score !\n1 answer for 5 points ", Toast.LENGTH_SHORT).show();
             mAnsNbr.setError("Decrease the number of answers");
+            Toast.makeText(this, "Decrease number of answers or options", Toast.LENGTH_SHORT).show();
+
         }
-else{
+
+        else{
         final DocumentReference sfDocRef = db.collection("questions").document("qXGHFFXNNANcUr2P0fEm");
 
         db.runTransaction(new Transaction.Function<Void>() {
