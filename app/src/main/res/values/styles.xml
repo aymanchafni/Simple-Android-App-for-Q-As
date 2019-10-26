@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/app_color</item>
         <item name="colorPrimaryDark">@color/app_color_light</item>
-        <item name="colorAccent">@color/app_color_light</item>
+        <item name="colorAccent">#9273E7</item>
         <item name="android:windowAnimationStyle">@null</item>
 
     </style>
@@ -24,5 +24,7 @@
 
     <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
     </style>
-
+    <style name="HeaderBar">
+        <item name="android:background">@color/app_color</item>
+    </style>
 </resources>

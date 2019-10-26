@@ -1,9 +1,13 @@
 package com.ayman.hblik;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +19,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +33,7 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -48,9 +54,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -60,7 +67,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -71,9 +77,9 @@ import java.util.Objects;
 
 
 public class LoginActivity extends AppCompatActivity {
-    AccessToken accessToken;
-    Bitmap bitmap;
-    FirebaseFirestore db;
+    private ProgressBar progress;
+    private static AccessToken accessToken;
+    private FirebaseFirestore db;
     TextInputLayout mEmail, mPassword;
     Button login;
     SignInButton googleSignIn;
@@ -86,16 +92,11 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
 
-    private GoogleSignInClient mGoogleSignInClient;
-    private SharedPreferences preferences;
-    private SharedPreferences.Editor editor;
-    String firstName;
-    String lastName;
-    String id_user;
+    private  GoogleSignInClient mGoogleSignInClient;
+    private static SharedPreferences preferences;
+    private static SharedPreferences.Editor editor;
 
-    int score;
-    private int id_last_question;
-
+    @SuppressLint("CommitPrefEdits")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +105,8 @@ public class LoginActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
+
+        progress=findViewById(R.id.progress);
         mEmail = findViewById(R.id.emailIn);
         eEmail = findViewById(R.id.eEmail);
         mPassword = findViewById(R.id.passwordIn);
@@ -111,6 +114,8 @@ public class LoginActivity extends AppCompatActivity {
         login = findViewById(R.id.login);
         googleSignIn = findViewById(R.id.googleSignIn);
         pEt = findViewById(R.id.pEt);
+        preferences = getSharedPreferences("userPreferences", 0);
+        editor = preferences.edit();
 
 
         login.setOnClickListener(new View.OnClickListener() {
@@ -159,8 +164,8 @@ public class LoginActivity extends AppCompatActivity {
 
         // [START initialize_fblogin]
         // Initialize Facebook Login button
-        mCallbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = findViewById(R.id.facebookSignIn);
+        mCallbackManager = CallbackManager.Factory.create();
         loginButton.setReadPermissions("email", "public_profile");
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -168,13 +173,14 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 accessToken=loginResult.getAccessToken();
                 handleFacebookAccessToken(accessToken);
+                progress.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onCancel() {
                 Log.d(TAG, "facebook:onCancel");
                 // [START_EXCLUDE]
-
+                progress.setVisibility(View.GONE);
                 // [END_EXCLUDE]
             }
 
@@ -182,6 +188,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onError(FacebookException error) {
                 Log.d(TAG, "facebook:onError", error);
                 // [START_EXCLUDE]
+                progress.setVisibility(View.GONE);
                 // [END_EXCLUDE]
             }
         });
@@ -208,13 +215,21 @@ public class LoginActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (FacebookSdk.isFacebookRequestCode(requestCode)) {
+        if(!ConnectivityHelper.isConnectedToNetwork(this)){
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            progress.setVisibility(View.GONE);
+        }
+
+        else if (FacebookSdk.isFacebookRequestCode(requestCode)) {
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
         fbLogin();
         }
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
+        else if (requestCode == RC_SIGN_IN) {
+
+
+            // todo handle the error of not being connected to internet everywhere
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
@@ -225,6 +240,9 @@ public class LoginActivity extends AppCompatActivity {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
                 // [START_EXCLUDE]
+                progress.setVisibility(View.GONE);
+                Toast.makeText(this, "Error getting google account", Toast.LENGTH_SHORT).show();
+
                 // [END_EXCLUDE]
             }
         }
@@ -248,18 +266,19 @@ public class LoginActivity extends AppCompatActivity {
                             //todo complete the whole fb sign_in setup
 
                             //String birthday=object.getString("birthday");
-                            firstName=object.getString("first_name");
-                            lastName=object.getString("last_name");
-                            String fb_photo_url=object.getJSONObject("picture").getJSONObject("data").getString("url");
+                            final String firstName=object.getString("first_name");
+                            final String lastName=object.getString("last_name");
+                            final String fb_photo_url=object.getJSONObject("picture").getJSONObject("data").getString("url");
 
 
-                            SignInGoogleFb(email,null, fb_photo_url,true);
+                            SignInGoogleFb(firstName,lastName,email,null, fb_photo_url,true);
 
-                            Intent i =new Intent(LoginActivity.this,HomeActivity.class);
-                            startActivity(i);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            progress.setVisibility(View.GONE);
+                            Toast.makeText(LoginActivity.this, "Error getting facebook account", Toast.LENGTH_SHORT).show();
+
                         }
                     }
                 });
@@ -283,7 +302,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "onComplete: "+ task.getResult().getUser());
+                            Log.d(TAG, "onComplete: "+ Objects.requireNonNull(task.getResult()).getUser());
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
 
@@ -292,8 +311,8 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",Toast.LENGTH_SHORT).show();
+                            progress.setVisibility(View.GONE);
 
                         }
 
@@ -306,9 +325,7 @@ public class LoginActivity extends AppCompatActivity {
     private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
 
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-        // [START_EXCLUDE silent]
-        //showProgressDialog();
-        // [END_EXCLUDE]
+
         final AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -316,12 +333,17 @@ public class LoginActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
 
                     final String email = acct.getEmail();
-                    firstName = acct.getGivenName();
-                    lastName = acct.getFamilyName();
+                    final String firstName = acct.getGivenName();
+                    final String lastName = acct.getFamilyName();
                     final Uri photo_google_uri = acct.getPhotoUrl();
 
                     assert photo_google_uri != null;
-                    SignInGoogleFb(email,null,photo_google_uri.toString(),false);
+                    SignInGoogleFb(firstName,lastName,email,null,photo_google_uri.toString(),false);
+
+
+                }else {
+                    Toast.makeText(LoginActivity.this, "Error connecting to google account", Toast.LENGTH_SHORT).show();
+                    progress.setVisibility(View.GONE);
 
                 }
             }
@@ -330,71 +352,11 @@ public class LoginActivity extends AppCompatActivity {
         //hideProgressDialog();
     }
 
-    public Bitmap getThumbnail(Uri uri) throws FileNotFoundException, IOException {
-        double THUMBNAIL_SIZE = 1000;
-        InputStream input = this.getContentResolver().openInputStream(uri);
-
-        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
-        onlyBoundsOptions.inJustDecodeBounds = true;
-        onlyBoundsOptions.inDither = true;//optional
-        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
-        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
-        assert input != null;
-        input.close();
-        if ((onlyBoundsOptions.outWidth == -1) || (onlyBoundsOptions.outHeight == -1))
-            return null;
-
-        int originalSize = (onlyBoundsOptions.outHeight > onlyBoundsOptions.outWidth) ? onlyBoundsOptions.outHeight : onlyBoundsOptions.outWidth;
-
-        double ratio = (originalSize > THUMBNAIL_SIZE) ? (originalSize / THUMBNAIL_SIZE) : 1.0;
-
-        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-        bitmapOptions.inSampleSize = getPowerOfTwoForSampleRatio(ratio);
-        bitmapOptions.inDither = true;//optional
-        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
-        input = this.getContentResolver().openInputStream(uri);
-        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
-        assert input != null;
-        input.close();
-        return bitmap;
-    }
-
-    private static int getPowerOfTwoForSampleRatio(double ratio) {
-        int k = Integer.highestOneBit((int) Math.floor(ratio));
-        if (k == 0) return 1;
-        else return k;
-    }
-
-    private void savePhotoInFirebase(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] data = baos.toByteArray();
-
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-
-        StorageReference mountainsRef = storageRef.child("profilePhotos/" + id_user + ".png");
-
-        UploadTask uploadTask = mountainsRef.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-            }
-        }).addOnSuccessListener(
-                new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
-            }
-        });
-    }
-
 
     // [END auth_with_google]
 
     private void googleSignIn() {
+        progress.setVisibility(View.VISIBLE);
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -408,10 +370,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onLogin() {
 
-
-        String email = Objects.requireNonNull(mEmail.getEditText()).getText().toString().trim();
-        String password = Objects.requireNonNull(mPassword.getEditText()).getText().toString().trim();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        progress.setVisibility(View.VISIBLE);
+        final String email = Objects.requireNonNull(mEmail.getEditText()).getText().toString().trim();
+        final String password = Objects.requireNonNull(mPassword.getEditText()).getText().toString().trim();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("userh")
                 .whereEqualTo("email", email)
@@ -425,27 +387,53 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             if (Objects.requireNonNull(task.getResult()).isEmpty()) {
                                 Toast.makeText(LoginActivity.this, "email or password incorrect", Toast.LENGTH_SHORT).show();
-                            } else {
+                                mEmail.setError(null);
+                                mPassword.setError(null);
+                            }
 
+                            else {
 
                                 Intent i = new Intent(getApplicationContext(), HomeActivity.class);
 
+                                final DocumentSnapshot document = task.getResult().getDocuments().get(0);
 
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    firstName = document.getString("firstName");
-                                    lastName = document.getString("lastName");
-                                    id_user = document.getId();
-                                    score = Objects.requireNonNull(document.getLong("score")).intValue();
-                                    id_last_question = Objects.requireNonNull(document.getLong("id_last_question")).intValue();
+                                    final boolean verified=Objects.requireNonNull(document.getBoolean("verified"));
+                                    final String id_user = document.getId();
+
+                                     //todo review this mess-----------------------------------------
+
+                                    if(!verified){
+                                        if(!Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified())
+                                        {
+                                            Toast.makeText(LoginActivity.this, "Please verify your email", Toast.LENGTH_SHORT).show();
+                                            TextView tv=findViewById(R.id.send_another_verification);
+                                            tv.setVisibility(View.VISIBLE);
+                                            tv.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    mAuth.getCurrentUser().sendEmailVerification();
+                                                    Toast.makeText(LoginActivity.this, "we have sent to you another verification email !", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            progress.setVisibility(View.GONE);
+                                            return;
+                                        }
+                                        else{
+                                            WriteBatch batch = db.batch();
+                                            DocumentReference sfRef = db.collection("userh").document(id_user);
+                                            batch.update(sfRef, "verified", true);
+                                            batch.commit();
+                                        }
+                                    }
+                                    String firstName = document.getString("firstName");
+                                    String lastName = document.getString("lastName");
+                                    final int score = Objects.requireNonNull(document.getLong("score")).intValue();
+                                    final int id_last_question = Objects.requireNonNull(document.getLong("id_last_question")).intValue();
 
 
                                     //todo : do this code in RegisterActivity so that wz can take user's infos once and let it also here in case the user deleted the app or its data...
 
-                                    break;
-                                }
-                                preferences = getSharedPreferences("userPreferences", 0);
 
-                                editor = preferences.edit();
                                 editor.putString("first_name", firstName);
                                 editor.putString("last_name", lastName);
                                 editor.putInt("score", score);
@@ -459,8 +447,11 @@ public class LoginActivity extends AppCompatActivity {
                             }
 
                         } else {
+
                             Log.d(TAG, "Error getting documents: ", task.getException());
-                            Toast.makeText(LoginActivity.this, "email or password incorrect", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Error connecting to the server", Toast.LENGTH_SHORT).show();
+                            progress.setVisibility(View.GONE);
+
                         }
                     }
                 });
@@ -468,14 +459,13 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void SignInGoogleFb(final String email, final String birthday, final String uri, final Boolean fb) {
+    private void SignInGoogleFb(final String firstName,final String lastName,final String email, final String birthday, final String uri, final Boolean fb) {
         db.collection("userh")
                 .whereEqualTo("email", email)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
 
                         if (task.isSuccessful()) {
                             if (Objects.requireNonNull(task.getResult()).isEmpty()) {
@@ -491,9 +481,9 @@ public class LoginActivity extends AppCompatActivity {
                                 data.put("email", email);
                                 data.put("birthday", birthday);
                                 if(fb)
-                                 data.put("sign_in_method", "facebook");
+                                 data.put("sign_in_method", "fb");
                                 else
-                                    data.put("sign_in_method", "google");
+                                    data.put("sign_in_method", "gg");
 
                                 data.put("id_last_question", 1);
                                 data.put("score", 0);
@@ -503,10 +493,8 @@ public class LoginActivity extends AppCompatActivity {
                                     public void onComplete(@NonNull Task<DocumentReference> task) {
                                         if (task.isSuccessful()) {
                                             Log.d(TAG, "onComplete: i'm heree");
-                                            id_user = Objects.requireNonNull(task.getResult()).getId();
-                                            preferences = getSharedPreferences("userPreferences", 0);
+                                            final String id_user = Objects.requireNonNull(task.getResult()).getId();
 
-                                            editor = preferences.edit();
                                             editor.putString("first_name", firstName);
                                             editor.putString("last_name", lastName);
                                             editor.putInt("score", 0);
@@ -515,16 +503,18 @@ public class LoginActivity extends AppCompatActivity {
                                             editor.apply();
                                             assert uri != null;
                                             try {
-                                                saveGooglePhotoInFirebase(uri);
+                                                saveGooglePhotoInFirebase(uri,id_user);
                                             } catch (IOException e) {
                                                 e.printStackTrace();
                                                 Log.d(TAG, "onComplete: " + e);
-                                                Log.d(TAG, "onComplete: " + uri.toString());
+                                                Log.d(TAG, "onComplete: " + uri);
                                             }
                                             Intent i = new Intent(LoginActivity.this, HomeActivity.class);
                                             startActivity(i);
                                         } else {
-                                            Log.d(TAG, "onComplete: error adding docCOD");
+                                            Log.d(TAG, "Error connecting to the server");
+                                            progress.setVisibility(View.GONE);
+
                                         }
 
                                     }
@@ -532,28 +522,68 @@ public class LoginActivity extends AppCompatActivity {
 
                             } else {
 
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    id_user = document.getId();
-                                    firstName = document.getString("firstName");
-                                    lastName = document.getString("lastName");
-                                    score = Objects.requireNonNull(document.getLong("score")).intValue();
-                                    id_last_question = Objects.requireNonNull(document.getLong("id_last_question")).intValue();
-                                    preferences = getSharedPreferences("userPreferences", 0);
+                                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                                    final String sign_in_method=document.getString("sign_in_method");
 
-                                    editor = preferences.edit();
-                                    editor.putString("first_name", firstName);
-                                    editor.putString("last_name", lastName);
-                                    editor.putInt("score", score);
-                                    editor.putInt("id_last_question", id_last_question);
-                                    editor.putString("id_user", id_user);
-                                    editor.apply();
 
-                                    Intent i = new Intent(LoginActivity.this, HomeActivity.class);
-                                    startActivity(i);
-                                    break;
+                               if(sign_in_method == null){
+                                   Toast.makeText(LoginActivity.this, "This email is already associated with a HBLIk account", Toast.LENGTH_SHORT).show();
+                                   progress.setVisibility(View.GONE);
+
+                               }
+
+                                else if(sign_in_method.equals("fb")){
+                                        if(fb){
+                                            signin_proc(document);
+                                        }
+                                        else{
+                                            Toast.makeText(LoginActivity.this, "Email of this facebook account already associated with another account", Toast.LENGTH_SHORT).show();
+                                            LoginManager.getInstance().logOut();
+                                            progress.setVisibility(View.GONE);
+
+                                        }
+                                    }
+                                else if(sign_in_method.equals("gg")){
+                                    if(!fb){
+                                        signin_proc(document);
+                                    }
+                                    else{
+                                        Toast.makeText(LoginActivity.this, "Email of this google account already associated with another account", Toast.LENGTH_SHORT).show();
+                                        progress.setVisibility(View.GONE);
+
+                                    }
                                 }
+
+
+
+                                    //------------------------------------------------------------------------
+
+
                             }
+                        }else {
+                            Toast.makeText(LoginActivity.this, "Error connecting to the server", Toast.LENGTH_SHORT).show();
+                            progress.setVisibility(View.GONE);
+
                         }
+
+                    }
+
+                    private void signin_proc(DocumentSnapshot document) {
+                        final String id_user = document.getId();
+                        final String firstName = document.getString("firstName");
+                        final String lastName = document.getString("lastName");
+                        final int score = Objects.requireNonNull(document.getLong("score")).intValue();
+                        final int id_last_question = Objects.requireNonNull(document.getLong("id_last_question")).intValue();
+
+                        editor.putString("first_name", firstName);
+                        editor.putString("last_name", lastName);
+                        editor.putInt("score", score);
+                        editor.putInt("id_last_question", id_last_question);
+                        editor.putString("id_user", id_user);
+                        editor.apply();
+
+                        Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+                        startActivity(i);
                     }
                 });
 
@@ -561,15 +591,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    public void saveGooglePhotoInFirebase(String uri) throws IOException {
+    public void saveGooglePhotoInFirebase(String uri,String id_user) throws IOException {
 if(uri==null)
     return;
 
         DownloadFromURL download = new DownloadFromURL();
-        download.execute(uri);
+        download.execute(uri,id_user);
 
     }
 
+     @SuppressLint("StaticFieldLeak")
      class DownloadFromURL extends AsyncTask<String, String, Bitmap> {
 
 
@@ -608,7 +639,7 @@ if(uri==null)
                 FirebaseStorage storage = FirebaseStorage.getInstance();
                 StorageReference storageRef = storage.getReference();
 
-                StorageReference mountainsRef = storageRef.child("profilePhotos/" + id_user + ".png");
+                StorageReference mountainsRef = storageRef.child("profilePhotos/" + fileUrl[1] + ".png");
 
                 UploadTask uploadTask = mountainsRef.putBytes(data1);
                 uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -645,6 +676,22 @@ if(uri==null)
 
         //progress dialog
 
+    }
+
+
+    public static class ConnectivityHelper {
+        static boolean isConnectedToNetwork(Context context) {
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            boolean isConnected = false;
+            if (connectivityManager != null) {
+                NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+                isConnected = (activeNetwork != null) && (activeNetwork.isConnectedOrConnecting());
+            }
+
+            return isConnected;
+        }
     }
 }
 

@@ -1,14 +1,12 @@
 package com.ayman.hblik;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -29,7 +27,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -51,20 +48,18 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class QuestionsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    TextView mName, mScore, mQuestion;
+    private TextView mScore;
+    private TextView mQuestion;
     RadioGroup radio;
-    BottomNavigationItemView askMi;
     private static final String TAG = "QuestionsActivity";
-    RadioButton rb1, rb2, rb3, rb4, rb5;
-    Button submitB;
-    int id_last_question, optionChosen, score;
-    String id_user;
-    DocumentSnapshot documentSnapshot;
-    CircleImageView imageView;
-    private int empty_interval;
-    SharedPreferences preferences;
-    SharedPreferences.Editor editor;
-    FirebaseAuth mAuth;
+    private  RadioButton rb1, rb2, rb3, rb4, rb5;
+    private  Button submitB;
+    private static int id_last_question, optionChosen, score;
+    private static String id_user;
+    private static DocumentSnapshot documentSnapshot;
+    private static  CircleImageView imageView;
+    private static SharedPreferences preferences;
+    private static SharedPreferences.Editor editor;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -72,7 +67,7 @@ public class QuestionsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questions);
 
-        SharedPreferences preferences = getSharedPreferences("userPreferences",MODE_PRIVATE);
+         preferences = getSharedPreferences("userPreferences",MODE_PRIVATE);
         id_user=preferences.getString("id_user",null);
         String firstName =preferences.getString("first_name",null);
         String lastName =preferences.getString("last_name",null);
@@ -82,9 +77,12 @@ public class QuestionsActivity extends AppCompatActivity
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle(getResources().getString(R.string.answer));
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -117,13 +115,13 @@ public class QuestionsActivity extends AppCompatActivity
                     case R.id.nav_ask:
                         if (score < 25) {
                             Toast.makeText(QuestionsActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
+                            return false;
                         } else {
                             Intent intent = new Intent(QuestionsActivity.this, CreateQuestionActivity.class);
                             startActivity(intent);
+                            return true;
+
                         }
-
-                        return true;
-
 
                 }
                return false;
@@ -135,7 +133,7 @@ public class QuestionsActivity extends AppCompatActivity
         View v0 = navigationView.getHeaderView(0);
         imageView = v0.findViewById(R.id.profilePhoto);
         View v = navigationView.getHeaderView(0);
-        mName = v.findViewById(R.id.name);
+        TextView mName = v.findViewById(R.id.name);
         mScore = findViewById(R.id.score);
         mQuestion = findViewById(R.id.question);
         submitB = findViewById(R.id.submit);
@@ -160,7 +158,6 @@ public class QuestionsActivity extends AppCompatActivity
             }
         });
 
-        askMi=findViewById(R.id.nav_ask);
 
         fill_new_content_start();
 
@@ -255,7 +252,6 @@ public class QuestionsActivity extends AppCompatActivity
         }
     }
 
-    int quest_skipped=0;
 
     private void onSubmit() {
         if(ButtonsUnchecked())
@@ -271,6 +267,7 @@ public class QuestionsActivity extends AppCompatActivity
     @SuppressLint("RestrictedApi")
     private void fill_new_content() {
         radio.clearCheck();
+
         rb1.setBackgroundColor(0xFFFFFFFF);
         rb2.setBackgroundColor(0xFFFFFFFF);
         rb3.setBackgroundColor(0xFFFFFFFF);
@@ -278,15 +275,13 @@ public class QuestionsActivity extends AppCompatActivity
         rb5.setBackgroundColor(0xFFFFFFFF);
 
 
-        id_last_question+=empty_interval+quest_skipped+1;
-        quest_skipped=0;
         score+=5;
         mScore.setText(getResources().getString(R.string.score,score));
 
 
 
         db.collection("questions")
-                .whereGreaterThanOrEqualTo("id", id_last_question)
+                .whereGreaterThan("id", id_last_question)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -299,6 +294,8 @@ public class QuestionsActivity extends AppCompatActivity
                             final DocumentReference sfDocRef = db.collection("questions").document(documentSnapshot.getId());
                             final DocumentReference sfDocRef2 = db.collection("userh").document(id_user);
 
+
+                             WriteBatch batch = db.batch();
                             db.runTransaction(new Transaction.Function<Void>() {
                                 @Override
                                 public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -314,31 +311,28 @@ public class QuestionsActivity extends AppCompatActivity
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Log.d("AAAAAAAAAAA", "Transaction success!");
+
                                 }
                             })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             Log.w("AAAAAAAAAAAAA", "Transaction failure.", e);
+
                                         }
                                     });
 
-                            WriteBatch batch = db.batch();
+
 
                             batch.update(sfDocRef, "total_answers", total_answers+1);
                             batch.update(sfDocRef2, "score", score);
-                            preferences=getSharedPreferences("userPreferences",0);
-                                editor=preferences.edit();
-                                editor.putInt("score",score);
-                                editor.apply();
-                            batch.update(sfDocRef2, "id_last_question", id_last_question+quest_skipped+empty_interval);
-                            editor.putInt("id_last_question",id_last_question);
+                            editor=preferences.edit();
+                            editor.putInt("score",score);
                             editor.apply();
-                            batch.commit();
-
 
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
+
 
                                 answerNbr= Objects.requireNonNull(document.getLong("answerNbr")).intValue();
                                 total_answers= Objects.requireNonNull(document.getLong("total_answers")).intValue();
@@ -346,12 +340,9 @@ public class QuestionsActivity extends AppCompatActivity
 
                                 assert id_questioner != null;
                                 if(answerNbr <= total_answers || id_questioner.equals(id_user)) {
-                                    quest_skipped++;
                                     continue;
                                 }
 
-                                int current_quest_id= Objects.requireNonNull(document.getLong("id")).intValue();
-                               empty_interval=current_quest_id-id_last_question;
 
                                 question=document.getString("question");
                                 option1=document.getString("option1");
@@ -360,11 +351,18 @@ public class QuestionsActivity extends AppCompatActivity
                                 option4=document.getString("option4");
                                 option5=document.getString("option5");
 
-                                documentSnapshot=document;
 
+                                id_last_question= Objects.requireNonNull(document.getLong("id")).intValue();
+                                batch.update(sfDocRef2, "id_last_question", id_last_question);
+                                editor.putInt("id_last_question",id_last_question);
+                                editor.apply();
+                                batch.commit();
+
+                                documentSnapshot=document;
                                 mQuestion.setText(question);
                                 rb1.setText(option1);
                                 rb2.setText(option2);
+
                                 if(option3 != null) {
                                     rb3.setVisibility(View.VISIBLE);
                                     rb3.setText(option3);
@@ -384,7 +382,9 @@ public class QuestionsActivity extends AppCompatActivity
                                 else
                                     rb5.setVisibility(View.GONE);
 
-                               break;
+
+                                break;
+
                             }
 
 
@@ -396,6 +396,7 @@ public class QuestionsActivity extends AppCompatActivity
                             rb3.setVisibility(View.INVISIBLE);
                             rb4.setVisibility(View.INVISIBLE);
                             rb5.setVisibility(View.INVISIBLE);
+                            submitB.setVisibility(View.GONE);
                             mQuestion.setText("");
 
                         }
@@ -416,7 +417,7 @@ public class QuestionsActivity extends AppCompatActivity
 
 
         db.collection("questions")
-                .whereGreaterThanOrEqualTo("id", id_last_question)
+                .whereGreaterThan("id", id_last_question)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -425,9 +426,7 @@ public class QuestionsActivity extends AppCompatActivity
                             String question,option1,option2,option3,option4,option5;
                             int answerNbr;
 
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-
-
+                            for(QueryDocumentSnapshot document : task.getResult()) {
 
 
                                 answerNbr= Objects.requireNonNull(document.getLong("answerNbr")).intValue();
@@ -435,7 +434,6 @@ public class QuestionsActivity extends AppCompatActivity
 
 
                                 if(answerNbr <= total_answers) {
-                                    quest_skipped++;
                                     continue;
                                 }
 
@@ -445,6 +443,17 @@ public class QuestionsActivity extends AppCompatActivity
                                 option3=document.getString("option3");
                                 option4=document.getString("option4");
                                 option5=document.getString("option5");
+
+                                WriteBatch batch=db.batch();
+                                editor=preferences.edit();
+                                final DocumentReference sfDocRef2 = db.collection("userh").document(id_user);
+
+                                id_last_question= Objects.requireNonNull(document.getLong("id")).intValue();
+                                batch.update(sfDocRef2, "id_last_question", id_last_question);
+                                editor.putInt("id_last_question",id_last_question);
+                                editor.apply();
+                                batch.commit();
+
                                 documentSnapshot=document;
 
                                 mQuestion.setText(question);
@@ -475,13 +484,13 @@ public class QuestionsActivity extends AppCompatActivity
 
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
-                            Toast.makeText(QuestionsActivity.this, "sorry ! no questions left", Toast.LENGTH_SHORT).show();
                             Toast.makeText(QuestionsActivity.this, "oups ! try later", Toast.LENGTH_SHORT).show();
                             rb1.setVisibility(View.INVISIBLE);
                             rb2.setVisibility(View.INVISIBLE);
                             rb3.setVisibility(View.INVISIBLE);
                             rb4.setVisibility(View.INVISIBLE);
                             rb5.setVisibility(View.INVISIBLE);
+                            submitB.setVisibility(View.GONE);
                             mQuestion.setText("");
                         }
                     }
@@ -511,12 +520,7 @@ public class QuestionsActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.navigation, menu);
-        return true;
-    }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -526,9 +530,6 @@ public class QuestionsActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -548,18 +549,22 @@ public class QuestionsActivity extends AppCompatActivity
                 Intent j =new Intent(this,HelpActivity.class);
                 startActivity(j);
                 return true;
-            case R.id.nav_report:
-                Intent k =new Intent(this,ReportActivity.class);
-                startActivity(k);
-                return true;
+
             case R.id.nav_share:
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT,
+                        "Hey check out my app at: https://www.play.google.com/Store");
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
                 return true;
             case R.id.nav_rate_us:
+                Intent t = new Intent(QuestionsActivity.this,RateUsActivity.class);
+                startActivity(t);
                 return true;
             case R.id.nav_log_out:
-                SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
                 preferences.edit().clear().apply();
-                mAuth=FirebaseAuth.getInstance();
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 mAuth.signOut();
                 LoginManager.getInstance().logOut();
 

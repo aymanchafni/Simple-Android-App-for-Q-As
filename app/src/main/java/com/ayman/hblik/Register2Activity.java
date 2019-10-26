@@ -9,8 +9,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,6 +29,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -37,7 +37,6 @@ import com.google.firebase.storage.UploadTask;
 import org.apache.commons.validator.EmailValidator;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +48,7 @@ public class Register2Activity extends AppCompatActivity {
 
 
     TextInputLayout mEmail,mPassword,mConfirmPassword;
-    Button backToPrincipal,gotoQuestions;
+    Button gotoQuestions;
     ImageView chooseProfilePhoto;
     CircleImageView profilePhoto;
     EditText pcEt;
@@ -61,12 +60,18 @@ public class Register2Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE); //will hide the title
-        Objects.requireNonNull(getSupportActionBar()).hide(); // hide the title bar
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_register2);
 
+        setContentView(R.layout.activity_register2);
+        Toolbar toolbar = findViewById(R.id.toolbar_register2);
+        toolbar.setTitle(getResources().getString(R.string.sign_up));
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.back_ic);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         //
         mEmail=findViewById(R.id.emailR);
@@ -75,17 +80,10 @@ public class Register2Activity extends AppCompatActivity {
         pcEt=findViewById(R.id.pcEt);
 
 
-        backToPrincipal=findViewById(R.id.backToPrincipal);
         gotoQuestions=findViewById(R.id.gotoQuestions);
         chooseProfilePhoto=findViewById(R.id.chooseProfilePhotoB);
         profilePhoto=findViewById(R.id.profilePhotoRegister);
 
-        backToPrincipal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBack();
-            }
-        });
 
         gotoQuestions.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,9 +139,6 @@ public class Register2Activity extends AppCompatActivity {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 profilePhoto.setImageBitmap(bitmap);
                 saveBitmap(bitmap);
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -167,6 +162,7 @@ public class Register2Activity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 // Handle unsuccessful uploads
+                Toast.makeText(Register2Activity.this, "Photo was not saved", Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -177,91 +173,101 @@ public class Register2Activity extends AppCompatActivity {
         });
     }
 
-    private void onBack(){
-        Intent intent=new Intent(this,LoginActivity.class);
-        startActivity(intent);
-
-    }
-
     private void onDone() {
         if(FieldError())
         {return;}
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
         // Create a new user with a first and last name
-        Map<String, Object> user = new HashMap<>();
+        final Map<String, Object> user = new HashMap<>();
 
         Bundle b = getIntent().getExtras();
         assert b != null;
 
-        String fName = b.getString("first_name");
-        String lName = b.getString("last_name");
-        String birthday=b.getString("birthday");
+        final String fName = b.getString("first_name");
+        final String lName = b.getString("last_name");
+        final String birthday=b.getString("birthday");
         final String email = Objects.requireNonNull(mEmail.getEditText()).getText().toString().trim();
-        String password = Objects.requireNonNull(mPassword.getEditText()).getText().toString().trim();
+        db.collection("userh")
+                .whereEqualTo("email",email)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-        Bundle b1=new Bundle();
-        b1.putString("fName",fName);
-        b1.putString("lName",lName);
-        b1.putString("birthday",birthday);
-        b1.putString("email",email);
-        //todo : verify if the email exist in the database
-        //todo make the profile photo unnecessary
-        b1.putString("password",password);
+                        if(task.isSuccessful()) {
+                            if (!Objects.requireNonNull(task.getResult()).isEmpty()) {
+                                Log.d(TAG, "onComplete: "+task.getResult().getDocuments());
+                                mEmail.setError("This email already exists !");
 
-        user.put("firstName", fName);
-        user.put("lastName", lName);
-        user.put("birthday", birthday);
-        user.put("email", email);
-        user.put("password", password);
-        user.put("id_last_question",1);
-        user.put("score",0);
+                            } else {
 
+                                String password = Objects.requireNonNull(mPassword.getEditText()).getText().toString().trim();
+
+
+                                user.put("firstName", fName);
+                                user.put("lastName", lName);
+                                user.put("birthday", birthday);
+                                user.put("email", email);
+                                user.put("password", password);
+                                user.put("id_last_question", 1);
+                                user.put("score", 0);
+                                user.put("verified", false);
 
 
 // Add a new document with a generated ID
-        db.collection("userh")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                        id_user= documentReference.getId();
-                        savePhotoInFirebase(profile);
+                                db.collection("userh")
+                                        .add(user)
+                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                            @Override
+                                            public void onSuccess(DocumentReference documentReference) {
+                                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                                id_user = documentReference.getId();
+                                                if (profile != null)
+                                                    savePhotoInFirebase(profile);
 
 
+                                            }
+                                        })
 
-                    }
-                })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w(TAG, "Error adding document", e);
+                                            }
+                                        });
 
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
+                                mAuth = FirebaseAuth.getInstance();
+                                mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
+                                            Log.d(TAG, "signInAnonymously:success");
+
+                                            mAuth.getCurrentUser().updateEmail(email);
+                                            mAuth.getCurrentUser().sendEmailVerification();
+                                            Log.d(TAG, "mail sent................"+mAuth.getCurrentUser().sendEmailVerification());
+                                        } else {
+                                            Toast.makeText(Register2Activity.this, "Unexpected problem..Please try again.", Toast.LENGTH_SHORT).show();
+
+                                        }
+                                    }
+                                });
+
+                                Intent i = new Intent(Register2Activity.this, EmailVerificationActivity.class);
+                                startActivity(i);
+
+                            }
+                        }
+                        else {
+                            Toast.makeText(Register2Activity.this, "Error connecting to server", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
 
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful() && mAuth.getCurrentUser()!=null) {
-                    Log.d(TAG, "signInAnonymously:success");
 
-                    mAuth.getCurrentUser().updateEmail(email);
-                    mAuth.getCurrentUser().sendEmailVerification();
-                    Log.d(TAG, "mail sent.....................................");
-                }
-                else{
-                    Toast.makeText(Register2Activity.this, "Unexpected problem..Please try again.", Toast.LENGTH_SHORT).show();
 
-                }
-            }
-        });
-
-        Intent i =new Intent(this,EmailVerificationActivity.class);
-        startActivity(i);
-
+//todo add user to database even if not verified but add cdt verified to login and add this field to every user registered withe email-pass
 
     }
     private boolean FieldError() {

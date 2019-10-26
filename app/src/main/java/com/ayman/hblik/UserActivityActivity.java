@@ -1,78 +1,66 @@
 package com.ayman.hblik;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class UserActivityActivity extends AppCompatActivity {
     private static final String TAG = "UserActivityActivity";
-
+    ProgressBar progress;
     private ArrayList<String> questions=new ArrayList<>();
     private ArrayList<String> answerNbrs=new ArrayList<>();
     private ArrayList<String> ids=new ArrayList<>();
     private int score;
     private String id_user;
-    TextView mName,mScore;
-    CircleImageView imageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_activity);
+        progress=findViewById(R.id.progress_user_activity);
 
         SharedPreferences preferences = getSharedPreferences("userPreferences",MODE_PRIVATE);
         id_user=preferences.getString("id_user",null);
-        String firstName =preferences.getString("first_name",null);
-        String lastName =preferences.getString("last_name",null);
+
         score =preferences.getInt("score",0);
 
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar_user_activity);
+        toolbar.setTitle(getResources().getString(R.string.my_activity));
+
         setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.back_ic);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+
         final BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -92,12 +80,14 @@ public class UserActivityActivity extends AppCompatActivity {
                     case R.id.nav_ask:
                         if (score < 25) {
                             Toast.makeText(UserActivityActivity.this, "You should have at least 25 pts", Toast.LENGTH_SHORT).show();
+                            return false;
+
                         } else {
                             Intent intent = new Intent(UserActivityActivity.this, CreateQuestionActivity.class);
                             startActivity(intent);
+                            return true;
                         }
 
-                        break;
                     case R.id.MyQuestions:
                         Log.d("e", "onNavigationItemSelected: starting userA");
                         Intent i = new Intent(UserActivityActivity.this, UserActivityActivity.class);
@@ -114,91 +104,21 @@ public class UserActivityActivity extends AppCompatActivity {
         bottomNavigationView.getMenu().findItem(R.id.MyQuestions).setChecked(true);
 
 
-        View v0 = navigationView.getHeaderView(0);
-        imageView = v0.findViewById(R.id.profilePhoto);
-        View v = navigationView.getHeaderView(0);
-        mName = v.findViewById(R.id.name);
-        mScore = findViewById(R.id.score);
-        mName.setText(getResources().getString(R.string.name,firstName,lastName));
-        mScore.setText(getResources().getString(R.string.score,score));
-
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                int id = menuItem.getItemId();
-
-                switch (id) {
-                    case R.id.nav_settings:
-                        Intent i =new Intent(UserActivityActivity.this,SettingsActivity.class);
-                        startActivity(i);
-                        return true;
-                    case R.id.nav_help:
-                        Intent j =new Intent(UserActivityActivity.this,HelpActivity.class);
-                        startActivity(j);
-                        return true;
-                    case R.id.nav_report:
-                        Intent k =new Intent(UserActivityActivity.this,ReportActivity.class);
-                        startActivity(k);
-                        return true;
-                    case R.id.nav_share:
-                        return true;
-                    case R.id.nav_rate_us:
-                        return true;
-                    case R.id.nav_log_out:
-                        SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
-                        preferences.edit().clear().apply();
-                        Intent intent =new Intent(UserActivityActivity.this,LoginActivity.class);
-                        FirebaseAuth mAuth;
-                        mAuth= FirebaseAuth.getInstance();
-                        mAuth.signOut();
-                        LoginManager.getInstance().logOut();
-                        startActivity(intent);
-                        finish();
-                        return true;
-                }
-                DrawerLayout drawer = findViewById(R.id.drawer_layout);
-                drawer.closeDrawer(GravityCompat.START);
-                return true;
-            }
-        });
-
-        setProfilePhoto(id_user);
 
     initQuestions();
     }
+
+
+
+
+
     @Override
     public void onBackPressed(){
         Intent i = new Intent(this,HomeActivity.class);
         startActivity(i);
     }
 
-    private void setProfilePhoto(String id){
-        FirebaseStorage storage = FirebaseStorage.getInstance();
 
-        // [START download_create_reference]
-        // Create a storage reference from our app
-        StorageReference storageRef = storage.getReference();
-
-        // Create a reference with an initial file path and name
-        StorageReference pathReference = storageRef.child("profilePhotos/"+id+".png");
-
-
-        final long ONE_MEGABYTE = 1024 * 1024;
-        pathReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-// Set the Bitmap data to the ImageView
-                imageView.setImageBitmap(bmp);            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
-            }
-
-        });
-
-    }
 
     private void initQuestions() {
         Log.d(TAG, "initQuestions: called. ");
@@ -227,9 +147,13 @@ public class UserActivityActivity extends AppCompatActivity {
                                 Log.d(TAG, "onComplete: question added!");
                                 Log.d(TAG, "onComplete: answerNbr added");
                             }
+
+                            if(questions.isEmpty())
+                                Toast.makeText(UserActivityActivity.this, "you don't have any question yet", Toast.LENGTH_SHORT).show();
+                            else
                             initRecyclerView();
 
-
+                            progress.setVisibility(View.GONE);
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class EmailVerificationActivity extends AppCompatActivity {
 
@@ -12,6 +13,17 @@ public class EmailVerificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_verification);
+        Toolbar toolbar = findViewById(R.id.toolbar_email_verification);
+        toolbar.setTitle(getResources().getString(R.string.email_verification));
+
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.back_ic);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
         findViewById(R.id.button_ok).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -21,6 +33,7 @@ public class EmailVerificationActivity extends AppCompatActivity {
         });
 
     }
+
 
     @Override
     public void onBackPressed() {

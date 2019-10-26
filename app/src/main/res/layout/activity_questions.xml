@@ -7,128 +7,124 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:openDrawer="start">
+    tools:openDrawer="start"
+    tools:context=".QuestionsActivity"
+    >
+
 
     <include
         layout="@layout/app_bar_navigation"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-
-    <LinearLayout
-    android:id="@+id/question_space"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-        android:padding="30dp"
-    android:orientation="vertical"
-    tools:context=".QuestionsActivity"
-    >
-
-
-
-        <TextView
-            android:id="@+id/score"
-            android:textColor="@color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            />
-
-
-
-
-        <TextView
-            android:id="@+id/question"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
-            android:layout_marginBottom="50dp"
-            android:padding="30dp"
-           android:background="@drawable/question_background"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textSize="15sp"
-            />
-
-
-
-    <RadioGroup
-        android:id="@+id/radio"
+    <TextView
+        android:id="@+id/score"
+        android:textColor="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp">
+        android:textAlignment="center"
+        />
 
 
-        <RadioButton
-            android:id="@+id/radioButton1"
-            android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border_0"
-            android:padding="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onChoice" />
-
-        <RadioButton
-            android:id="@+id/radioButton2"
-            android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border"
-            android:padding="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onChoice" />
-
-        <RadioButton
-            android:id="@+id/radioButton3"
-            android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border"
-            android:padding="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onChoice"
-            android:visibility="gone" />
-
-        <RadioButton
-            android:id="@+id/radioButton4"
-            android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border"
-            android:padding="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onChoice"
-            android:visibility="gone" />
-
-        <RadioButton
-            android:id="@+id/radioButton5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:button="@drawable/btn_radio"
-            android:background="@drawable/layout_border"
-            android:padding="20dp"
-            android:onClick="onChoice"
-            android:visibility="gone" />
-    </RadioGroup>
-
-
-
-        <Button
-            android:id="@+id/submit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/app_color"
-            android:text="@string/submit"
-            android:textColor="@color/white"/>
-
-
-
-        <Space
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-         />
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/question_space"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="30dp">
 
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/question"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:layout_marginBottom="50dp"
+                android:background="@drawable/question_background"
+                android:padding="30dp"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textSize="15sp" />
 
-<RelativeLayout
+            <RadioGroup
+                android:id="@+id/radio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp">
+
+
+                <RadioButton
+                    android:id="@+id/radioButton1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/layout_border_0"
+                    android:button="@drawable/btn_radio"
+                    android:onClick="onChoice"
+                    android:padding="20dp" />
+
+                <RadioButton
+                    android:id="@+id/radioButton2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/layout_border_0"
+                    android:button="@drawable/btn_radio"
+                    android:onClick="onChoice"
+                    android:padding="20dp" />
+
+                <RadioButton
+                    android:id="@+id/radioButton3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/layout_border_0"
+                    android:button="@drawable/btn_radio"
+                    android:onClick="onChoice"
+                    android:padding="20dp"
+                    android:visibility="gone" />
+
+                <RadioButton
+                    android:id="@+id/radioButton4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/layout_border_0"
+                    android:button="@drawable/btn_radio"
+                    android:onClick="onChoice"
+                    android:padding="20dp"
+                    android:visibility="gone" />
+
+                <RadioButton
+                    android:id="@+id/radioButton5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/layout_border_0"
+                    android:button="@drawable/btn_radio"
+                    android:onClick="onChoice"
+                    android:padding="20dp"
+                    android:visibility="gone" />
+            </RadioGroup>
+
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/app_color"
+                android:text="@string/submit"
+                android:textColor="@color/white" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -144,8 +140,7 @@
         android:layout_marginEnd="0dp"
         android:layout_marginRight="0dp"
         android:background="@color/white"
-        app:itemIconTint="@drawable/selector"
-        app:itemTextColor="@drawable/selector"
+        app:itemTextColor="@color/app_color"
         app:menu="@menu/menu_bottom" />
 </RelativeLayout>
 
