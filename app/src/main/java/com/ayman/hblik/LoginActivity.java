@@ -87,13 +87,9 @@ public class LoginActivity extends AppCompatActivity {
     TextView register;
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
-
-    // [START declare_auth]
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
-
     private  GoogleSignInClient mGoogleSignInClient;
-    private static SharedPreferences preferences;
     private static SharedPreferences.Editor editor;
 
     @SuppressLint("CommitPrefEdits")
@@ -114,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
         login = findViewById(R.id.login);
         googleSignIn = findViewById(R.id.googleSignIn);
         pEt = findViewById(R.id.pEt);
-        preferences = getSharedPreferences("userPreferences", 0);
+        SharedPreferences preferences = getSharedPreferences("userPreferences", 0);
         editor = preferences.edit();
 
 
@@ -367,6 +363,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    FirebaseUser user;
 
     private void onLogin() {
 
@@ -389,60 +386,74 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, "email or password incorrect", Toast.LENGTH_SHORT).show();
                                 mEmail.setError(null);
                                 mPassword.setError(null);
+                                progress.setVisibility(View.GONE);
                             }
 
                             else {
 
-                                Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                                final Intent i = new Intent(getApplicationContext(), HomeActivity.class);
 
                                 final DocumentSnapshot document = task.getResult().getDocuments().get(0);
 
                                     final boolean verified=Objects.requireNonNull(document.getBoolean("verified"));
                                     final String id_user = document.getId();
-
                                      //todo review this mess-----------------------------------------
-
                                     if(!verified){
-                                        if(!Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified())
-                                        {
-                                            Toast.makeText(LoginActivity.this, "Please verify your email", Toast.LENGTH_SHORT).show();
-                                            TextView tv=findViewById(R.id.send_another_verification);
-                                            tv.setVisibility(View.VISIBLE);
-                                            tv.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    mAuth.getCurrentUser().sendEmailVerification();
-                                                    Toast.makeText(LoginActivity.this, "we have sent to you another verification email !", Toast.LENGTH_SHORT).show();
+                                        mAuth.signInWithEmailAndPassword(email,"AnOnYmOuS")
+                                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                                if(task.isSuccessful() && task.getResult()!=null){
+                                                     user = task.getResult().getUser();
+                                                    Log.d(TAG, "onComplete: user "+user);
+                                                    if(!user.isEmailVerified())
+                                                    {
+                                                        Toast.makeText(LoginActivity.this, "Please verify your email", Toast.LENGTH_SHORT).show();
+                                                        final TextView tv=findViewById(R.id.send_another_verification);
+                                                        tv.setVisibility(View.VISIBLE);
+                                                        tv.setOnClickListener(new View.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(View v) {
+                                                                user.sendEmailVerification();
+                                                                tv.setVisibility(View.GONE);
+
+                                                                Toast.makeText(LoginActivity.this, "we have sent to you another verification email !", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                        progress.setVisibility(View.GONE);
+                                                        //return;
+                                                    }
+                                                    else{
+                                                        WriteBatch batch = db.batch();
+                                                        DocumentReference sfRef = db.collection("userh").document(id_user);
+                                                        batch.update(sfRef, "verified", true);
+                                                        batch.commit();
+
+                                                        getUserInfo(document,id_user);
+
+
+                                                        startActivity(i);
+                                                    }
                                                 }
-                                            });
-                                            progress.setVisibility(View.GONE);
-                                            return;
-                                        }
-                                        else{
-                                            WriteBatch batch = db.batch();
-                                            DocumentReference sfRef = db.collection("userh").document(id_user);
-                                            batch.update(sfRef, "verified", true);
-                                            batch.commit();
-                                        }
+                                                else {
+                                                    Log.d(TAG, "onComplete: no user "+user);
+
+                                                }
+                                            }
+                                        });
+
+
                                     }
-                                    String firstName = document.getString("firstName");
-                                    String lastName = document.getString("lastName");
-                                    final int score = Objects.requireNonNull(document.getLong("score")).intValue();
-                                    final int id_last_question = Objects.requireNonNull(document.getLong("id_last_question")).intValue();
 
-
-                                    //todo : do this code in RegisterActivity so that wz can take user's infos once and let it also here in case the user deleted the app or its data...
-
-
-                                editor.putString("first_name", firstName);
-                                editor.putString("last_name", lastName);
-                                editor.putInt("score", score);
-                                editor.putInt("id_last_question", id_last_question);
-                                editor.putString("id_user", id_user);
-                                editor.apply();
+                                //getUserInfo(document);
+                                else {
+                                    getUserInfo(document,id_user);
 
                                 startActivity(i);
                                 Log.d(TAG, "onComplete: task successeful");
+
+
+                                }
 
                             }
 
@@ -453,6 +464,24 @@ public class LoginActivity extends AppCompatActivity {
                             progress.setVisibility(View.GONE);
 
                         }
+                    }
+
+                    private void getUserInfo(DocumentSnapshot document,String id_user) {
+                        String firstName = document.getString("firstName");
+                        String lastName = document.getString("lastName");
+                        final int score = Objects.requireNonNull(document.getLong("score")).intValue();
+                        final int id_last_question = Objects.requireNonNull(document.getLong("id_last_question")).intValue();
+
+                        //todo : do this code in RegisterActivity so that wz can take user's infos once and let it also here in case the user deleted the app or its data...
+
+
+                        editor.putString("first_name", firstName);
+                        editor.putString("last_name", lastName);
+                        editor.putInt("score", score);
+                        editor.putInt("id_last_question", id_last_question);
+                        editor.putString("id_user", id_user);
+                        editor.apply();
+
                     }
                 });
 

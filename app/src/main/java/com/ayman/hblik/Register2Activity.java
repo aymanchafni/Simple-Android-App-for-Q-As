@@ -226,6 +226,19 @@ public class Register2Activity extends AppCompatActivity {
                                                 if (profile != null)
                                                     savePhotoInFirebase(profile);
 
+                                                mAuth = FirebaseAuth.getInstance();
+                                                mAuth.createUserWithEmailAndPassword(email,"AnOnYmOuS").addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                                        if(task.isSuccessful() && mAuth.getCurrentUser() != null){
+                                                            mAuth.getCurrentUser().sendEmailVerification();
+
+                                                        }
+                                                        else{
+
+                                                        }
+                                                    }
+                                                });
 
                                             }
                                         })
@@ -237,22 +250,7 @@ public class Register2Activity extends AppCompatActivity {
                                             }
                                         });
 
-                                mAuth = FirebaseAuth.getInstance();
-                                mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
-                                            Log.d(TAG, "signInAnonymously:success");
 
-                                            mAuth.getCurrentUser().updateEmail(email);
-                                            mAuth.getCurrentUser().sendEmailVerification();
-                                            Log.d(TAG, "mail sent................"+mAuth.getCurrentUser().sendEmailVerification());
-                                        } else {
-                                            Toast.makeText(Register2Activity.this, "Unexpected problem..Please try again.", Toast.LENGTH_SHORT).show();
-
-                                        }
-                                    }
-                                });
 
                                 Intent i = new Intent(Register2Activity.this, EmailVerificationActivity.class);
                                 startActivity(i);
