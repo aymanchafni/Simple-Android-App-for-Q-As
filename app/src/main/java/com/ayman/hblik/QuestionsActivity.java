@@ -161,8 +161,6 @@ public class QuestionsActivity extends AppCompatActivity
 
         fill_new_content_start();
 
-
-
     }
 
     private void setProfilePhoto(String id){
@@ -254,6 +252,11 @@ public class QuestionsActivity extends AppCompatActivity
 
 
     private void onSubmit() {
+        if(!LoginActivity.ConnectivityHelper.isConnectedToNetwork(this)){
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            //progress.setVisibility(View.GONE);
+            return;
+        }
         if(ButtonsUnchecked())
         {
             return;
@@ -275,9 +278,8 @@ public class QuestionsActivity extends AppCompatActivity
         rb5.setBackgroundColor(0xFFFFFFFF);
 
 
-        score+=5;
-        mScore.setText(getResources().getString(R.string.score,score));
 
+        submitB.setVisibility(View.GONE);
 
 
         db.collection("questions")
@@ -287,22 +289,18 @@ public class QuestionsActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                        if (task.isSuccessful() && !Objects.requireNonNull(task.getResult()).isEmpty()) {
-                            String question,option1,option2,option3,option4,option5,id_questioner;
-                            int answerNbr;
-
+                        if (task.isSuccessful()) {
                             final DocumentReference sfDocRef = db.collection("questions").document(documentSnapshot.getId());
                             final DocumentReference sfDocRef2 = db.collection("userh").document(id_user);
 
 
-                             WriteBatch batch = db.batch();
                             db.runTransaction(new Transaction.Function<Void>() {
                                 @Override
                                 public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
 
                                     DocumentSnapshot snapshot = transaction.get(sfDocRef);
-                                    int times_option_chosen= Objects.requireNonNull(snapshot.getLong("option_" + optionChosen)).intValue();
-                                    transaction.update(sfDocRef, "option_"+optionChosen, times_option_chosen+1);
+                                    int times_option_chosen = Objects.requireNonNull(snapshot.getLong("option_" + optionChosen)).intValue();
+                                    transaction.update(sfDocRef, "option_" + optionChosen, times_option_chosen + 1);
 
                                     // Success
                                     return null;
@@ -322,83 +320,108 @@ public class QuestionsActivity extends AppCompatActivity
                                         }
                                     });
 
+                            WriteBatch batch = db.batch();
 
+                            batch.update(sfDocRef, "total_answers", total_answers + 1);
 
-                            batch.update(sfDocRef, "total_answers", total_answers+1);
+                            score += 5;
                             batch.update(sfDocRef2, "score", score);
-                            editor=preferences.edit();
-                            editor.putInt("score",score);
+                            batch.commit();
+                            mScore.setText(getResources().getString(R.string.score, score));
+
+                            editor = preferences.edit();
+                            editor.putInt("score", score);
                             editor.apply();
 
+                            if (!Objects.requireNonNull(task.getResult()).isEmpty()) {
+                                String question, option1, option2, option3, option4, option5, id_questioner;
+                                int answerNbr;
+                                int count=0;
 
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    count++;
+
+                                    answerNbr = Objects.requireNonNull(document.getLong("answerNbr")).intValue();
+                                    total_answers = Objects.requireNonNull(document.getLong("total_answers")).intValue();
+                                    id_questioner = document.getString("id_questioner");
+
+                                    assert id_questioner != null;
+                                     if (answerNbr <= total_answers || id_questioner.equals(id_user)) {
+                                         if(count==task.getResult().size()){
+                                             id_last_question = Objects.requireNonNull(document.getLong("id")).intValue();
+
+                                             WriteBatch batch100=db.batch();
+                                             batch100.update(sfDocRef2, "id_last_question", id_last_question);
+                                             batch100.commit();
+                                             fill_new_content_start();
+                                         }
+                                        continue;
+                                    }
+
+                                    question = document.getString("question");
+                                    option1 = document.getString("option1");
+                                    option2 = document.getString("option2");
+                                    option3 = document.getString("option3");
+                                    option4 = document.getString("option4");
+                                    option5 = document.getString("option5");
+
+                                    id_last_question = Objects.requireNonNull(document.getLong("id")).intValue();
+
+                                    WriteBatch batch101=db.batch();
+                                    batch101.update(sfDocRef2, "id_last_question", id_last_question);
+                                    batch101.commit();
+
+                                    editor.putInt("id_last_question", id_last_question);
+                                    editor.apply();
+
+                                    documentSnapshot = document;
+                                    mQuestion.setText(question);
+                                    rb1.setText(option1);
+                                    rb2.setText(option2);
+
+                                    if (option3 != null) {
+                                        rb3.setVisibility(View.VISIBLE);
+                                        rb3.setText(option3);
+                                    } else
+                                        rb3.setVisibility(View.GONE);
+                                    if (option4 != null) {
+                                        rb4.setVisibility(View.VISIBLE);
+                                        rb4.setText(option4);
+                                    } else
+                                        rb4.setVisibility(View.GONE);
+                                    if (option5 != null) {
+                                        rb5.setVisibility(View.VISIBLE);
+                                        rb5.setText(option5);
+                                    } else
+                                        rb5.setVisibility(View.GONE);
 
 
-                                answerNbr= Objects.requireNonNull(document.getLong("answerNbr")).intValue();
-                                total_answers= Objects.requireNonNull(document.getLong("total_answers")).intValue();
-                                id_questioner=document.getString("id_questioner");
+                                    break;
 
-                                assert id_questioner != null;
-                                if(answerNbr <= total_answers || id_questioner.equals(id_user)) {
-                                    continue;
                                 }
+                                submitB.setVisibility(View.VISIBLE);
 
 
-                                question=document.getString("question");
-                                option1=document.getString("option1");
-                                option2=document.getString("option2");
-                                option3=document.getString("option3");
-                                option4=document.getString("option4");
-                                option5=document.getString("option5");
 
-
-                                id_last_question= Objects.requireNonNull(document.getLong("id")).intValue();
-                                batch.update(sfDocRef2, "id_last_question", id_last_question);
-                                editor.putInt("id_last_question",id_last_question);
-                                editor.apply();
-                                batch.commit();
-
-                                documentSnapshot=document;
-                                mQuestion.setText(question);
-                                rb1.setText(option1);
-                                rb2.setText(option2);
-
-                                if(option3 != null) {
-                                    rb3.setVisibility(View.VISIBLE);
-                                    rb3.setText(option3);
-                                }
-                                else
-                                    rb3.setVisibility(View.GONE);
-                                if(option4 != null) {
-                                    rb4.setVisibility(View.VISIBLE);
-                                    rb4.setText(option4);
-                                }
-                                else
-                                    rb4.setVisibility(View.GONE);
-                                if(option5 != null) {
-                                    rb5.setVisibility(View.VISIBLE);
-                                    rb5.setText(option5);
-                                }
-                                else
-                                    rb5.setVisibility(View.GONE);
-
-
-                                break;
+                            } else {
+                                Log.d("e", "Error getting documents: ", task.getException());
+                                Toast.makeText(QuestionsActivity.this, "oups ! try later", Toast.LENGTH_SHORT).show();
+                                rb1.setVisibility(View.INVISIBLE);
+                                rb2.setVisibility(View.INVISIBLE);
+                                rb3.setVisibility(View.INVISIBLE);
+                                rb4.setVisibility(View.INVISIBLE);
+                                rb5.setVisibility(View.INVISIBLE);
+                                mQuestion.setText("");
 
                             }
-
-
-                        } else {
-                            Log.d("e", "Error getting documents: ", task.getException());
-                            Toast.makeText(QuestionsActivity.this, "oups ! try later", Toast.LENGTH_SHORT).show();
+                        }else {
+                            Toast.makeText(QuestionsActivity.this, "Error connecting to server", Toast.LENGTH_SHORT).show();
                             rb1.setVisibility(View.INVISIBLE);
                             rb2.setVisibility(View.INVISIBLE);
                             rb3.setVisibility(View.INVISIBLE);
                             rb4.setVisibility(View.INVISIBLE);
                             rb5.setVisibility(View.INVISIBLE);
-                            submitB.setVisibility(View.GONE);
                             mQuestion.setText("");
-
                         }
 
                     }
@@ -411,6 +434,11 @@ public class QuestionsActivity extends AppCompatActivity
 
     @SuppressLint("RestrictedApi")
     private void fill_new_content_start() {
+        if(!LoginActivity.ConnectivityHelper.isConnectedToNetwork(this)){
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            //progress.setVisibility(View.GONE);
+            return;
+        }
 
         mScore.setText(getResources().getString(R.string.score,score));
 
@@ -426,14 +454,26 @@ public class QuestionsActivity extends AppCompatActivity
                             String question,option1,option2,option3,option4,option5;
                             int answerNbr;
 
-                            for(QueryDocumentSnapshot document : task.getResult()) {
+                            int count=0;
+                            final DocumentReference sfDocRef2 = db.collection("userh").document(id_user);
 
+                            for(QueryDocumentSnapshot document : task.getResult()) {
+                                count++;
 
                                 answerNbr= Objects.requireNonNull(document.getLong("answerNbr")).intValue();
                                 total_answers= Objects.requireNonNull(document.getLong("total_answers")).intValue();
 
+                                String id_questioner = document.getString("id_questioner");
 
-                                if(answerNbr <= total_answers) {
+                                if(answerNbr <= total_answers || id_user.equals(id_questioner)) {
+                                    if(count==task.getResult().size()){
+                                        id_last_question = Objects.requireNonNull(document.getLong("id")).intValue();
+
+                                        WriteBatch batch100=db.batch();
+                                        batch100.update(sfDocRef2, "id_last_question", id_last_question);
+                                        batch100.commit();
+                                        fill_new_content_start();
+                                    }
                                     continue;
                                 }
 
@@ -446,7 +486,6 @@ public class QuestionsActivity extends AppCompatActivity
 
                                 WriteBatch batch=db.batch();
                                 editor=preferences.edit();
-                                final DocumentReference sfDocRef2 = db.collection("userh").document(id_user);
 
                                 id_last_question= Objects.requireNonNull(document.getLong("id")).intValue();
                                 batch.update(sfDocRef2, "id_last_question", id_last_question);
@@ -481,6 +520,7 @@ public class QuestionsActivity extends AppCompatActivity
                                 break;
                             }
 
+                            submitB.setVisibility(View.VISIBLE);
 
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());

@@ -33,6 +33,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -45,6 +46,8 @@ public class SettingsActivity extends AppCompatActivity {
     Button button_save;
     ProgressBar progressBar;
     String id_user,user_pass;
+    final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,16 +85,52 @@ public class SettingsActivity extends AppCompatActivity {
         button_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                change();
+                save_modifications();
+            }
+        });
+
+        db.collection("userh").document(id_user)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    String sign_in_method = Objects.requireNonNull(task.getResult()).getString("sign_in_method");
+                    if(sign_in_method != null)
+                    {
+                        if(sign_in_method.equals("fb")) {
+                            curr_pass.setHint("Signed in with facebook");
+                            curr_pass.setEnabled(false);
+                            new_pass.setHint("Signed in with facebook");
+                            new_pass.setEnabled(false);
+                        }
+                        else if(sign_in_method.equals("gg")) {
+                            curr_pass.setHint("Signed in with google");
+                            curr_pass.setEnabled(false);
+                            new_pass.setHint("Signed in with google");
+                            new_pass.setEnabled(false);
+                        }
+                    }
+                    else {
+                        curr_pass.setEnabled(false);
+                        new_pass.setEnabled(false);
+                    }
+
+                }
             }
         });
 
     }
 
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private void change() {
+    private void save_modifications() {
         progressBar.setVisibility(View.VISIBLE);
+
+        if(!LoginActivity.ConnectivityHelper.isConnectedToNetwork(this)){
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+            return;
+        }
+
         final String pass=new_pass.getText().toString().trim();
         if(pass.length()<8 && pass.length()>0){
             new_pass.setError("at least 8 characters");
@@ -100,8 +139,9 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         else if(pass.length()==0){
-            if(profile!=null)
+            if(profile!=null){
                 savePhotoInFirebase(profile);
+            }
 
             else
                 Toast.makeText(this, "No changes", Toast.LENGTH_SHORT).show();
@@ -127,6 +167,8 @@ public class SettingsActivity extends AppCompatActivity {
 
                             if(profile!=null){
                                 savePhotoInFirebase(profile);
+                                new_photo.setImageDrawable(null);
+                                Toast.makeText(SettingsActivity.this, "   Saved   ", Toast.LENGTH_SHORT).show();
                             }
                             if(user_pass==null){
                                 curr_pass.setError("Incorrect");
@@ -138,6 +180,12 @@ public class SettingsActivity extends AppCompatActivity {
                                 DocumentReference sfRef = db.collection("userh").document(id_user);
                                 batch.update(sfRef, "password", pass);
                                 batch.commit();
+
+                                curr_pass.setText("");
+                                new_pass.setText("");
+
+
+                                Toast.makeText(SettingsActivity.this, "   Saved   ", Toast.LENGTH_SHORT).show();
 
                                 Log.d(TAG, "onComplete: "+pass0+"  "+user_pass+"  "+pass);
                             }
@@ -152,11 +200,7 @@ public class SettingsActivity extends AppCompatActivity {
                 });
         }
 
-        try {
-            wait(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         progressBar.setVisibility(View.GONE);
 
 
@@ -178,11 +222,15 @@ public class SettingsActivity extends AppCompatActivity {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
+                Toast.makeText(SettingsActivity.this, "Photo not saved", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onFailure: "+exception);
                 // Handle unsuccessful uploads
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(SettingsActivity.this, "   Saved   ", Toast.LENGTH_SHORT).show();
+
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                 // ...
             }

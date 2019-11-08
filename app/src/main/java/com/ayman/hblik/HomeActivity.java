@@ -56,17 +56,28 @@ ImageView profileImg;
         String lastName =preferences.getString("last_name",null);
         score =preferences.getInt("score",0);
 
+        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getResources().getString(R.string.menu_home));
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        /*toolbar.setNavigationIcon(R.drawable.menuic);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawer.openDrawer(GravityCompat.START);
+            }
+        });
+*/
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -107,11 +118,12 @@ ImageView profileImg;
                         finish();
                         return true;
                 }
-                DrawerLayout drawer = findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
         });
+
+
 
         View v0 = navigationView.getHeaderView(0);
         profileImg = v0.findViewById(R.id.profilePhoto);

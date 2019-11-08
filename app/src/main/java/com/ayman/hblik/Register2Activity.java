@@ -1,4 +1,4 @@
-package com.ayman.hblik;
+ package com.ayman.hblik;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,11 +49,12 @@ public class Register2Activity extends AppCompatActivity {
 
 
     TextInputLayout mEmail,mPassword,mConfirmPassword;
-    Button gotoQuestions;
+    Button signUp;
     ImageView chooseProfilePhoto;
     CircleImageView profilePhoto;
     EditText pcEt;
     Bitmap profile;
+    ProgressBar progress;
     private String id_user;
     private static final String TAG = "Register2Activity";
     FirebaseAuth mAuth;
@@ -74,18 +76,19 @@ public class Register2Activity extends AppCompatActivity {
         });
 
         //
+        progress=findViewById(R.id.progress_register);
         mEmail=findViewById(R.id.emailR);
         mPassword=findViewById(R.id.passwordR);
         mConfirmPassword=findViewById(R.id.passwordConfirm);
         pcEt=findViewById(R.id.pcEt);
 
 
-        gotoQuestions=findViewById(R.id.gotoQuestions);
+        signUp=findViewById(R.id.signUp);
         chooseProfilePhoto=findViewById(R.id.chooseProfilePhotoB);
         profilePhoto=findViewById(R.id.profilePhotoRegister);
 
 
-        gotoQuestions.setOnClickListener(new View.OnClickListener() {
+        signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onDone();
@@ -102,7 +105,7 @@ public class Register2Activity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
                     //do what you want on the press of 'done'
-                    gotoQuestions.performClick();
+                    signUp.performClick();
                 }
                 return false;
             }
@@ -174,7 +177,13 @@ public class Register2Activity extends AppCompatActivity {
     }
 
     private void onDone() {
-        if(FieldError())
+
+        if(!LoginActivity.ConnectivityHelper.isConnectedToNetwork(this)){
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            progress.setVisibility(View.GONE);
+            return;
+        }
+        else if(FieldError())
         {return;}
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -216,44 +225,50 @@ public class Register2Activity extends AppCompatActivity {
 
 
 // Add a new document with a generated ID
-                                db.collection("userh")
-                                        .add(user)
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                            @Override
-                                            public void onSuccess(DocumentReference documentReference) {
-                                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                                id_user = documentReference.getId();
-                                                if (profile != null)
-                                                    savePhotoInFirebase(profile);
+                                mAuth = FirebaseAuth.getInstance();
+                                mAuth.createUserWithEmailAndPassword(email,"AnOnYmOuS").addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if(task.isSuccessful() && mAuth.getCurrentUser() != null){
+                                            db.collection("userh")
+                                                    .add(user)
+                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentReference documentReference) {
+                                                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                                            id_user = documentReference.getId();
+                                                            if (profile != null)
+                                                                savePhotoInFirebase(profile);
 
-                                                mAuth = FirebaseAuth.getInstance();
-                                                mAuth.createUserWithEmailAndPassword(email,"AnOnYmOuS").addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                                        if(task.isSuccessful() && mAuth.getCurrentUser() != null){
                                                             mAuth.getCurrentUser().sendEmailVerification();
 
-                                                        }
-                                                        else{
+                                                            Intent i = new Intent(Register2Activity.this, EmailVerificationActivity.class);
+                                                            startActivity(i);
 
                                                         }
-                                                    }
-                                                });
+                                                    })
 
-                                            }
-                                        })
-
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w(TAG, "Error adding document", e);
-                                            }
-                                        });
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w(TAG, "Error adding document", e);
+                                                        }
+                                                    });
 
 
 
-                                Intent i = new Intent(Register2Activity.this, EmailVerificationActivity.class);
-                                startActivity(i);
+                                        }
+                                        else{
+                                            Toast.makeText(Register2Activity.this, "Error connecting to server", Toast.LENGTH_SHORT).show();
+
+                                        }
+                                    }
+                                });
+
+
+
+
+
 
                             }
                         }

@@ -117,6 +117,12 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!ConnectivityHelper.isConnectedToNetwork(LoginActivity.this)){
+                    Toast.makeText(LoginActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+                    progress.setVisibility(View.GONE);
+                    return;
+                }
+
                 onLogin();
             }
         });

@@ -171,71 +171,71 @@ public class CreateQuestionActivity extends AppCompatActivity {
 
 
 
-    Map<String, Object> data = new HashMap<>();
-    FirebaseFirestore db;
-    String question;
-    String option1;
-    String option2;
-    String option3;
-    String option4;
-    String option5;
-    int AnsNbr;
+
     private void onPost() {
-        if(CfieldEmpty()){
+
+        if(!LoginActivity.ConnectivityHelper.isConnectedToNetwork(this)){
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            //progressBar.setVisibility(View.GONE);
+            return;
+        }
+
+        else if(CfieldEmpty()){
             return;
         }
 
 
 
-       db = FirebaseFirestore.getInstance();
+        final Map<String, Object> data = new HashMap<>();
 
-        question=mQuestion.getText().toString();
-        option1=mOption1.getText().toString();
-        option2=mOption2.getText().toString();
-        AnsNbr=Integer.parseInt(mAnsNbr.getText().toString());
-        option3=mOption3.getText().toString();
-        option4=mOption4.getText().toString();
-        option5=mOption5.getText().toString();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        score=score-20;
+        final String question=mQuestion.getText().toString();
+        final String option1=mOption1.getText().toString();
+        final String option2=mOption2.getText().toString();
+        final String option3=mOption3.getText().toString();
+        final String option4=mOption4.getText().toString();
+        final String option5=mOption5.getText().toString();
+        final int AnsNbr=Integer.parseInt(mAnsNbr.getText().toString());
+        int options_score=score;
 
 
-        if(score>=85){
+
+        if(options_score>=85){
             if(!option3.equals("")){
-                score=score-20;
+                options_score=options_score-20;
             }
             if(!option4.equals("")){
-                score=score-20;
+                options_score=options_score-20;
             }
             if(!option5.equals("")){
-                score=score-20;
+                options_score=options_score-20;
             }
         }
 
 
-        else if(score>=65){
+        else if(options_score>=65){
             if(!option3.equals("")){
-                score=score-20;
+                options_score=options_score-20;
             }
             if(!option4.equals("")){
-                score=score-20;
+                options_score=options_score-20;
             }
         }
 
-        else if(score>=45){
+        else if(options_score>=45){
             if(!option3.equals("")){
-                score=score-20;
+                options_score=options_score-20;
             }
         }
 
+        options_score=options_score-20;
 
 
-
-        final int calculated_score = score - 5*AnsNbr;
+        final int calculated_score = options_score - 5*AnsNbr;
         if(calculated_score<0){
             Toast.makeText(this, "You don't have enough score !\n1 answer for 5 points ", Toast.LENGTH_SHORT).show();
-            mAnsNbr.setError("Decrease the number of answers");
-            Toast.makeText(this, "Decrease number of answers or options", Toast.LENGTH_SHORT).show();
+            mAnsNbr.setError("Decrease the number of answers or options");
 
         }
 

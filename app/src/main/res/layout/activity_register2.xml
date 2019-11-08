@@ -99,12 +99,6 @@
                 android:orientation="horizontal"
                 android:paddingBottom="50dp">
 
-                <ImageView
-                    android:id="@+id/chooseProfilePhotoB"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/attach_ic" />
-
                 <TextView
                     android:id="@+id/textView"
                     android:layout_width="wrap_content"
@@ -113,6 +107,12 @@
                     android:paddingEnd="50dp"
                     android:text="@string/choose_photo"
                     android:textColor="@color/app_color_light" />
+
+                <ImageView
+                    android:id="@+id/chooseProfilePhotoB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/attach_ic" />
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/profilePhotoRegister"
@@ -128,12 +128,19 @@
 
 
                 <Button
-                    android:id="@+id/gotoQuestions"
+                    android:id="@+id/signUp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_background"
                     android:text="@string/sign_up" />
             </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progress_register"
+                android:visibility="gone"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
 
         </LinearLayout>
