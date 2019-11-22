@@ -1,11 +1,19 @@
 <resources>
     <string name="app_name" translatable="false">HBLIK</string>
+    <string name="A">A. %s</string>
+    <string name="B">B. %s</string>
+    <string name="C">C. %s</string>
+    <string name="D">D. %s</string>
+    <string name="E">E. %s</string>
+    <string name="ad_attribution">Ad</string>
+
+
     <string name="my_activity">My Activity</string>
     <string name="question_stats">Question Stats</string>
     <string name="email_verification">Email Verification</string>
     <string name="create_question">Create a new question</string>
 
-<string name="rate_us_message">Did you like our app ?\nGive us 5 stars now</string>
+    <string name="rate_us_message">Did you like our app ?\nGive us 5 stars now</string>
     <string name="sign_up">Sign-Up</string>
     <string name="sign_in">Sign-In</string>
     <string name="email">Email</string>
@@ -14,7 +22,6 @@
     <string name="last_name">Last name</string>
     <string name="birthday">Birth date</string>
     <string name="confirm_password">Confirm Password</string>
-    <string name="choose_photo">Set profile photo</string>
     <string name="submit">Submit</string>
     <string name="score">Score : %d</string>
     <string name="score_home">  %d</string>
@@ -51,14 +58,6 @@
     </string>
 
 
-    <string name="name">%s %s</string>
-
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
-
     <string name="menu_home">Home</string>
     <string name="menu_share">Share</string>
     <string name="go">GO</string>
@@ -76,19 +75,15 @@
     <string name="ask">Ask</string>
     <string name="answer">Answer</string>
     <string name="myq">My questions</string>
-    <string name="stats">My stats</string>
     <string name="exit">Log out</string>
     <string name="settings">Settings</string>
     <string name="help">Help</string>
-    <string name="report">Report</string>
     <string name="rate">Rate us</string>
     <string name="change_pass">Change your password</string>
     <string name="current_pass">enter your current password :</string>
     <string name="new_pass">enter the new password :</string>
-    <string name="new_photo">choose a new profile photo</string>
     <string name="save_changes">save changes</string>
-    <string name="change_photo">change profile photo</string>
-    <string name="send_again_verification_email" >didn\'t receive verification email yet ?\n <u>Send another email</u></string>
+    <string name="send_again_verification_email">didn\'t receive verification email yet ?\n <u>Send another email</u></string>
 
     <string-array name="days_array">
         <item>01</item>
@@ -255,6 +250,8 @@
         <item>1905</item>
 
     </string-array>
+
+    <string name="title_activity_image">ImageActivity</string>
 </resources>
 
 

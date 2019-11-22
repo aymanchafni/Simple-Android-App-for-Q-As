@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,15 +9,38 @@
     tools:context=".CreateQuestionActivity"
     >
 
+<RelativeLayout
+    android:id="@+id/rvtc"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentStart="true">
 
 <androidx.appcompat.widget.Toolbar
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/toolbar_create_question"/>
+    android:id="@+id/toolbar_create_question"
+    app:title="@string/create_question"
+    app:navigationIcon="@drawable/back_ic"/>
+    <TextView
+        android:id="@+id/score1"
+        android:layout_below="@+id/toolbar_create_question"
+        android:fontFamily="sans-serif-medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/app_color"
+        />
 
+</RelativeLayout>
 <ScrollView
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/rvtc"
+    android:layout_above="@id/bottom_nav_view"
+    android:layout_marginTop="10dp"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentEnd="true">
 
     <LinearLayout
     android:layout_width="match_parent"
@@ -25,97 +48,250 @@
     android:orientation="vertical"
         android:paddingEnd="20dp"
         android:paddingStart="20dp">
-        <TextView
-            android:id="@+id/score1"
+
+
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/app_color"
-            android:paddingBottom="10dp"
-            />
-
-
-
-        <EditText
-            android:id="@+id/mQuestion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:background="@drawable/create_question_background"
+            android:orientation="horizontal"
             android:layout_margin="10dp"
-            android:textAlignment="center"
-            android:ems="10"
-            android:padding="40dp"
-            android:gravity="start|top"
-            android:hint="@string/ask_question"
-            android:inputType="textMultiLine"
-            android:maxLength="100"/>
-
-
-        <EditText
-            android:id="@+id/mOption1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/create_options_background"
-            android:layout_margin="7dp"
-            android:padding="10dp"
-
-            android:maxLength="20"
-            android:ems="10"
-            android:hint="@string/option1" />
-
-
-        <EditText
-            android:id="@+id/mOption2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/create_options_background"
-            android:layout_margin="7dp"
-            android:padding="10dp"
-
-            android:maxLength="20"
-            android:ems="10"
-            android:hint="@string/option2" />
-
-
-
-
-
-        <EditText
-            android:id="@+id/mOption3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/create_options_background"
-            android:layout_margin="7dp"
-            android:padding="10dp"
-            android:maxLength="20"
-            android:ems="10"
-            android:hint="@string/option3" />
+            >
 
             <EditText
-            android:id="@+id/mOption4"
+                android:id="@+id/mQuestion"
+                android:fontFamily="sans-serif-medium"
+                android:background="@android:color/transparent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start|top"
+                android:hint="@string/ask_question"
+                android:inputType="textMultiLine"
+                android:maxLength="100"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="30dp"
+
+                android:textAlignment="center" />
+
+            <ImageView
+                android:id="@+id/photo_question"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                 />
+
+            <ImageView
+                android:id="@+id/attach_photo_question"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/attach_ic" />
+        </LinearLayout>
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/create_options_background"
+            android:orientation="horizontal"
             android:layout_margin="7dp"
-            android:padding="10dp"
 
-            android:maxLength="20"
-            android:ems="10"
-            android:hint="@string/option4" />
+            >
+
+            <EditText
+                android:id="@+id/mOption1"
+                android:fontFamily="sans-serif-medium"
+
+                android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:hint="@string/option1"
+                android:maxLength="20"
+                 />
+
+            <ImageView
+                android:id="@+id/photo_option1"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/attach_photo_option1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/attach_ic" />
+        </LinearLayout>
 
 
-
-        <EditText
-            android:id="@+id/mOption5"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/create_options_background"
+            android:orientation="horizontal"
             android:layout_margin="7dp"
-            android:padding="10dp"
-            android:maxLength="20"
-            android:ems="10"
-            android:hint="@string/option5" />
-    <LinearLayout
+
+            >
+
+            <EditText
+                android:id="@+id/mOption2"
+                android:fontFamily="sans-serif-medium"
+
+                android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:hint="@string/option2"
+                android:maxLength="20"
+                />
+
+            <ImageView
+                android:id="@+id/photo_option2"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/attach_photo_option2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/attach_ic" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_options_background"
+            android:orientation="horizontal"
+            android:layout_margin="7dp"
+
+            >
+
+            <EditText
+                android:id="@+id/mOption3"
+                android:fontFamily="sans-serif-medium"
+
+                android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:hint="@string/option3"
+                android:maxLength="20"
+                />
+
+            <ImageView
+                android:id="@+id/photo_option3"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/attach_photo_option3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/attach_ic" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_options_background"
+            android:orientation="horizontal"
+            android:layout_margin="7dp"
+
+            >
+
+            <EditText
+                android:id="@+id/mOption4"
+                android:fontFamily="sans-serif-medium"
+
+                android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:hint="@string/option4"
+                android:maxLength="20"
+                />
+
+            <ImageView
+                android:id="@+id/photo_option4"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/attach_photo_option4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/attach_ic" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_options_background"
+            android:orientation="horizontal"
+            android:layout_margin="7dp"
+
+            >
+
+            <EditText
+                android:id="@+id/mOption5"
+                android:fontFamily="sans-serif-medium"
+
+                android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:hint="@string/option5"
+                android:maxLength="20"
+                />
+
+            <ImageView
+                android:id="@+id/photo_option5"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/attach_photo_option5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/attach_ic" />
+        </LinearLayout>
+
+        <LinearLayout
         android:id="@+id/notif_5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -204,6 +380,8 @@
     android:textColor="@color/app_color_light"/>
     <EditText
         android:id="@+id/mAnsNbr"
+        android:fontFamily="sans-serif-medium"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="number"
@@ -214,7 +392,6 @@
         android:hint="@string/number" />
 
     <TextView
-        android:id="@+id/notif_0"
         android:text="@string/notification0"
         android:textSize="12sp"
         android:textColor="@color/app_color"
@@ -234,7 +411,6 @@
         android:background="@color/app_color_light"/>
 
     <TextView
-        android:id="@+id/goto_help"
         android:textColor="@color/color_link"
         android:textAlignment="center"
         android:layout_width="match_parent"
@@ -244,12 +420,21 @@
         android:padding="10dp"
         android:layout_margin="0dp"/>
 
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:layout_marginTop="5dp"
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
+        </com.google.android.gms.ads.AdView>
+
 </LinearLayout>
 </ScrollView>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav_view"
@@ -258,14 +443,9 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
             app:itemIconTint="@drawable/selector"
             app:itemTextColor="@drawable/selector"
             android:background="@color/white"
             app:menu="@menu/menu_bottom" />
-    </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

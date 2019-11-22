@@ -16,7 +16,11 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -93,38 +97,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="50dp">
-
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:paddingEnd="50dp"
-                    android:text="@string/choose_photo"
-                    android:textColor="@color/app_color_light" />
-
-                <ImageView
-                    android:id="@+id/chooseProfilePhotoB"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/attach_ic" />
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profilePhotoRegister"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="30dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
 
 
                 <Button
@@ -133,7 +105,6 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_background"
                     android:text="@string/sign_up" />
-            </LinearLayout>
 
             <ProgressBar
                 android:id="@+id/progress_register"

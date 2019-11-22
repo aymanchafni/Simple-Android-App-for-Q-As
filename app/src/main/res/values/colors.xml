@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorAccent">#D81B60</color>
 
 
     <color name="app_color">#341d4b</color>
@@ -8,14 +7,12 @@
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
     <color name="transparent">#00FFFFFF</color>
-    <color name="option1">#F50057</color>
-    <color name="option2">#D500F9</color>
-    <color name="option3">#3D5AFE</color>
-    <color name="option4">#00E5FF</color>
-    <color name="option5">#00E676</color>
+    <color name="option1">#003f5c</color>
+    <color name="option2">#58508d</color>
+    <color name="option3">#bc5090</color>
+    <color name="option4">#ff6361</color>
+    <color name="option5">#ffa600</color>
     <color name="color_link">#2A3BF8</color>
-    <color name="yellow">#FFC107</color>
-
 
 
 </resources>
