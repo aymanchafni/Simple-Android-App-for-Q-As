@@ -3,62 +3,138 @@ package com.ayman.hblik;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.facebook.login.LoginManager;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class HomeActivity extends AppCompatActivity {
-    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-4453425711318249/9140874106";
-    private static int score;
-
+    //todo edit content
+    //todo edit other activities content like settings and help
+SharedPreferences preferences;
+int score;
+String id_user;
+TextView Hscore,mName;
+ImageView profileImg;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_home);
 
-        ImageView Hask, Hanswer, Hstats;
-        LinearLayout Hexit;
+        LinearLayout Hask,Hanswer,Hstats,Hexit;
 
-        TextView hscore = findViewById(R.id.Hscore);
-        Hask = findViewById(R.id.Hask);
-        Hanswer = findViewById(R.id.Hanswer);
-        Hstats = findViewById(R.id.Hstats);
-        Hexit = findViewById(R.id.Hexit);
+        Hscore=findViewById(R.id.Hscore);
+        Hask=findViewById(R.id.Hask);
+        Hanswer=findViewById(R.id.Hanswer);
+        Hstats=findViewById(R.id.Hstats);
+        Hexit=findViewById(R.id.Hexit);
 
-        //todo edit content
-        //todo edit other activities content like settings and help
-        SharedPreferences preferences = getSharedPreferences("userPreferences", 0);
+        preferences=getSharedPreferences("userPreferences",0);
+        id_user=preferences.getString("id_user",null);
+        String firstName =preferences.getString("first_name",null);
+        String lastName =preferences.getString("last_name",null);
+        score =preferences.getInt("score",0);
 
-        score = preferences.getInt("score", 0);
-
-        Toolbar toolbar = findViewById(R.id.toolbar_home);
-
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle(getResources().getString(R.string.menu_home));
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+
+                switch (id) {
+                    case R.id.nav_settings:
+                        Intent i =new Intent(HomeActivity.this,SettingsActivity.class);
+                        startActivity(i);
+                        return true;
+                    case R.id.nav_help:
+                        Intent j =new Intent(HomeActivity.this,HelpActivity.class);
+                        startActivity(j);
+                        return true;
+
+                    case R.id.nav_share:
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT,
+                                "Hey check out my app at: https://play.google.com");
+                        sendIntent.setType("text/plain");
+                        startActivity(sendIntent);
+                        return true;
+                    case R.id.nav_rate_us:
+                        Intent t = new Intent(HomeActivity.this,RateUsActivity.class);
+                        startActivity(t);
+                        return true;
+                    case R.id.nav_log_out:
+                        SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
+                        preferences.edit().clear().apply();
+                        Intent intent =new Intent(HomeActivity.this,LoginActivity.class);
+                        FirebaseAuth mAuth;
+                        mAuth= FirebaseAuth.getInstance();
+                        mAuth.signOut();
+                        LoginManager.getInstance().logOut();
+
+                        startActivity(intent);
+                        finish();
+                        return true;
+                }
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
+
+        View v0 = navigationView.getHeaderView(0);
+        profileImg = v0.findViewById(R.id.profilePhoto);
+        View v = navigationView.getHeaderView(0);
+        mName = v.findViewById(R.id.name);
+        mName.setText(getResources().getString(R.string.name,firstName,lastName));
+        setProfilePhoto(id_user);
 
 
-        hscore.setText(getResources().getString(R.string.score_home, score));
+
+
+        Hscore.setText(getResources().getString(R.string.score_home,score));
 
         Hask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (score < 25) {
+                if(score<25)
+                {
                     Toast.makeText(HomeActivity.this, "You should have a least 25 pts", Toast.LENGTH_SHORT).show();
-                } else {
-                    Intent i = new Intent(HomeActivity.this, CreateQuestionActivity.class);
+                }
+
+               else{
+                    Intent i = new Intent(HomeActivity.this,CreateQuestionActivity.class);
                     startActivity(i);
                 }
             }
@@ -86,9 +162,9 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 SharedPreferences preferences = getSharedPreferences("userPreferences", Context.MODE_PRIVATE);
                 preferences.edit().clear().apply();
-                Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+                Intent intent =new Intent(HomeActivity.this,LoginActivity.class);
                 FirebaseAuth mAuth;
-                mAuth = FirebaseAuth.getInstance();
+                mAuth= FirebaseAuth.getInstance();
                 mAuth.signOut();
                 LoginManager.getInstance().logOut();
 
@@ -97,86 +173,41 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        AdView adView = new AdView(this);
-        adView.setAdSize(AdSize.BANNER);
-        adView.setAdUnitId(ADMOB_AD_UNIT_ID);
+    }
+    private void setProfilePhoto(String id){
+        FirebaseStorage storage = FirebaseStorage.getInstance();
 
-        adView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+        // [START download_create_reference]
+        // Create a storage reference from our app
+        StorageReference storageRef = storage.getReference();
 
-        adView.setAdListener(new AdListener() {
+        // Create a reference with an initial file path and name
+        StorageReference pathReference = storageRef.child("profilePhotos/"+id+".png");
+
+
+        final long ONE_MEGABYTE = 1024 * 1024;
+        pathReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
+            public void onSuccess(byte[] bytes) {
+                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+// Set the Bitmap data to the ImageView
+                profileImg.setImageBitmap(bmp);            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
             }
 
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-            }
-
-            @Override
-            public void onAdClicked() {
-                // Code to be executed when the user clicks on an ad.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when the user is about to return
-                // to the app after tapping on an ad.
-            }
         });
-
 
     }
 
-
     @Override
-    public void onBackPressed() {
+    public void onBackPressed(){
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        homeIntent.addCategory( Intent.CATEGORY_HOME );
         homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(homeIntent);
     }
 
-    public void actionHome(View view) {
-        int id = view.getId();
-        switch (id) {
-            case R.id.nav_settings:
-                Intent i = new Intent(HomeActivity.this, SettingsActivity.class);
-                startActivity(i);
-                break;
-            case R.id.nav_help:
-                Intent j = new Intent(HomeActivity.this, HelpActivity.class);
-                startActivity(j);
-                break;
-
-            case R.id.nav_share:
-                final String appPackageName = getPackageName();
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT,
-                        "Hey check out my app at : https://play.google.com/store/apps/details?id=" + appPackageName);
-                sendIntent.setType("text/plain");
-                startActivity(sendIntent);
-                break;
-            case R.id.nav_rate_us:
-                Intent t = new Intent(HomeActivity.this, RateUsActivity.class);
-                startActivity(t);
-                break;
-
-        }
-    }
 }

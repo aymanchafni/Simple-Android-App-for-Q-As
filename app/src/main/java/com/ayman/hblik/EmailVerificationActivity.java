@@ -27,7 +27,7 @@ public class EmailVerificationActivity extends AppCompatActivity {
         findViewById(R.id.button_ok).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(EmailVerificationActivity.this, LoginActivity.class);
+                Intent i =new Intent(EmailVerificationActivity.this,LoginActivity.class);
                 startActivity(i);
             }
         });
@@ -37,7 +37,7 @@ public class EmailVerificationActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent i = new Intent(this, RegisterActivity.class);
+        Intent i =new Intent(this,RegisterActivity.class);
         startActivity(i);
     }
 }

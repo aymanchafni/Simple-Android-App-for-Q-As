@@ -6,11 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RatingBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,12 +15,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdLoader;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.formats.NativeAdOptions;
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -37,24 +27,23 @@ import java.util.Objects;
 
 public class UserActivityActivity extends AppCompatActivity {
     private static final String TAG = "UserActivityActivity";
-    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-4453425711318249/2986868602";
-    private ProgressBar progress;
-    private ArrayList<String> questions = new ArrayList<>();
-    private ArrayList<String> answerNbrs = new ArrayList<>();
-    private ArrayList<String> ids = new ArrayList<>();
+    ProgressBar progress;
+    private ArrayList<String> questions=new ArrayList<>();
+    private ArrayList<String> answerNbrs=new ArrayList<>();
+    private ArrayList<String> ids=new ArrayList<>();
     private int score;
-    private static String id_user;
+    private String id_user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_activity);
-        progress = findViewById(R.id.progress_user_activity);
+        progress=findViewById(R.id.progress_user_activity);
 
-        SharedPreferences preferences = getSharedPreferences("userPreferences", MODE_PRIVATE);
-        id_user = preferences.getString("id_user", null);
+        SharedPreferences preferences = getSharedPreferences("userPreferences",MODE_PRIVATE);
+        id_user=preferences.getString("id_user",null);
 
-        score = preferences.getInt("score", 0);
+        score =preferences.getInt("score",0);
 
 
         Toolbar toolbar = findViewById(R.id.toolbar_user_activity);
@@ -70,12 +59,14 @@ public class UserActivityActivity extends AppCompatActivity {
         });
 
 
-        final BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
+
+
+        final BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
 
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                int id = menuItem.getItemId();
+                int id=menuItem.getItemId();
                 switch (id) {
                     case R.id.nav_home:
                         Intent h = new Intent(UserActivityActivity.this, HomeActivity.class);
@@ -100,7 +91,7 @@ public class UserActivityActivity extends AppCompatActivity {
                     case R.id.MyQuestions:
                         Log.d("e", "onNavigationItemSelected: starting userA");
                         Intent i = new Intent(UserActivityActivity.this, UserActivityActivity.class);
-                        Bundle b = new Bundle();
+                        Bundle b =new Bundle();
                         b.putString("id_user", id_user);
                         i.putExtras(b);
                         startActivity(i);
@@ -113,130 +104,20 @@ public class UserActivityActivity extends AppCompatActivity {
         bottomNavigationView.getMenu().findItem(R.id.MyQuestions).setChecked(true);
 
 
-        initQuestions();
 
-
-        AdLoader adLoader = new AdLoader.Builder(UserActivityActivity.this, ADMOB_AD_UNIT_ID)
-                .forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
-                    @Override
-                    public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
-                        // Show the ad.
-                        FrameLayout frameLayout =
-                                findViewById(R.id.fl_adplaceholder);
-                        UnifiedNativeAdView adView = (UnifiedNativeAdView) getLayoutInflater()
-                                .inflate(R.layout.ad_unified, null);
-                        populateUnifiedNativeAdView(unifiedNativeAd, adView);
-                        frameLayout.removeAllViews();
-                        frameLayout.addView(adView);
-                    }
-                })
-                .withAdListener(new AdListener() {
-                    @Override
-                    public void onAdFailedToLoad(int errorCode) {
-                        // Handle the failure by logging, altering the UI, and so on.
-                    }
-                })
-                .withNativeAdOptions(new NativeAdOptions.Builder()
-                        // Methods in the NativeAdOptions.Builder class can be
-                        // used here to specify individual options settings.
-                        .build())
-                .build();
-
-        adLoader.loadAd(new AdRequest.Builder().build());
-
-
+    initQuestions();
     }
 
 
-    private void populateUnifiedNativeAdView(UnifiedNativeAd nativeAd, UnifiedNativeAdView adView) {
-        // Set the media view.
 
-        // Set other ad assets.
-        adView.setHeadlineView(adView.findViewById(R.id.ad_headline));
-        adView.setBodyView(adView.findViewById(R.id.ad_body));
-        adView.setIconView(adView.findViewById(R.id.ad_app_icon));
-        adView.setPriceView(adView.findViewById(R.id.ad_price));
-        adView.setStarRatingView(adView.findViewById(R.id.ad_stars));
-        adView.setStoreView(adView.findViewById(R.id.ad_store));
-        adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
-
-        // The headline and mediaContent are guaranteed to be in every UnifiedNativeAd.
-        ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
-
-        // These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
-        // check before trying to display them.
-        if (nativeAd.getBody() == null) {
-            adView.getBodyView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getBodyView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
-        }
-
-
-        if (nativeAd.getIcon() == null) {
-            adView.getIconView().setVisibility(View.GONE);
-        } else {
-            ((ImageView) adView.getIconView()).setImageDrawable(
-                    nativeAd.getIcon().getDrawable());
-            adView.getIconView().setVisibility(View.VISIBLE);
-        }
-
-        if (nativeAd.getPrice() == null) {
-            adView.getPriceView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getPriceView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getPriceView()).setText(nativeAd.getPrice());
-        }
-
-        if (nativeAd.getStore() == null) {
-            adView.getStoreView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getStoreView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getStoreView()).setText(nativeAd.getStore());
-        }
-
-        if (nativeAd.getStarRating() == null) {
-            adView.getStarRatingView().setVisibility(View.INVISIBLE);
-        } else {
-            ((RatingBar) adView.getStarRatingView())
-                    .setRating(nativeAd.getStarRating().floatValue());
-            adView.getStarRatingView().setVisibility(View.VISIBLE);
-        }
-
-        if (nativeAd.getAdvertiser() == null) {
-            adView.getAdvertiserView().setVisibility(View.INVISIBLE);
-        } else {
-            ((TextView) adView.getAdvertiserView()).setText(nativeAd.getAdvertiser());
-            adView.getAdvertiserView().setVisibility(View.VISIBLE);
-        }
-
-        // This method tells the Google Mobile Ads SDK that you have finished populating your
-        // native ad view with this native ad.
-        adView.setNativeAd(nativeAd);
-
-        // Get the video controller for the ad. One will always be provided, even if the ad doesn't
-        // have a video asset.
-
-
-    }
-
-    /**
-     * Creates a request for a new native ad based on the boolean parameters and calls the
-     * corresponding "populate" method when one is successfully returned.
-     */
-
-    @Override
-    protected void onDestroy() {
-
-        super.onDestroy();
-    }
 
 
     @Override
-    public void onBackPressed() {
-        Intent i = new Intent(this, HomeActivity.class);
+    public void onBackPressed(){
+        Intent i = new Intent(this,HomeActivity.class);
         startActivity(i);
     }
+
 
 
     private void initQuestions() {
@@ -251,26 +132,26 @@ public class UserActivityActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            String question, id;
-                            int answerNbr, Id;
+                                     String question,id;
+                                     int answerNbr,Id;
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                question = document.getString("question");
-                                answerNbr = Objects.requireNonNull(document.getLong("total_answers")).intValue();
-                                Id = Objects.requireNonNull(document.getLong("id")).intValue();
-                                id = Integer.toString(Id);
+                                question=document.getString("question");
+                                answerNbr= Objects.requireNonNull(document.getLong("total_answers")).intValue();
+                                Id= Objects.requireNonNull(document.getLong("id")).intValue();
+                                id=Integer.toString(Id);
 
                                 questions.add(question);
-                                answerNbrs.add("" + answerNbr);
+                                answerNbrs.add(""+answerNbr);
                                 ids.add(id);
 
                                 Log.d(TAG, "onComplete: question added!");
                                 Log.d(TAG, "onComplete: answerNbr added");
                             }
 
-                            if (questions.isEmpty())
+                            if(questions.isEmpty())
                                 Toast.makeText(UserActivityActivity.this, "you don't have any question yet", Toast.LENGTH_SHORT).show();
                             else
-                                initRecyclerView();
+                            initRecyclerView();
 
                             progress.setVisibility(View.GONE);
                         } else {
@@ -281,11 +162,11 @@ public class UserActivityActivity extends AppCompatActivity {
                 });
     }
 
-    private void initRecyclerView() {
+    private void initRecyclerView(){
         Log.d(TAG, "initRecyclerView: called. ");
-        Log.d(TAG, "initRecyclerView: " + questions);
-        RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, questions, answerNbrs, ids);
+        Log.d(TAG, "initRecyclerView: "+questions);
+        RecyclerView recyclerView=findViewById(R.id.recyclerview);
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(this,questions,answerNbrs,ids);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
