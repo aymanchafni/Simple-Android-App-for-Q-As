@@ -1,2 +1,2 @@
 # HBANLIK
-Android native Java app For Q&amp;A s available on PlayStore
+Android native Java app For Q&amp;A s 
